@@ -28,7 +28,7 @@ namespace prefab {
 
     entt::entity PrefabSpawnTrigger::create(
         entt::registry& ecs,
-        strb::rect2i triggerRect,
+        strb::rect2f triggerRect,
         bool triggerOnce,
         bool entityMustBeGrounded,
         PrefabType prefabType,

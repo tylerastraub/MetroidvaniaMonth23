@@ -27,7 +27,7 @@ namespace prefab {
         return create(ecs, {0, 0, 0, 0}, true, false, -1);
     }
 
-    entt::entity DialogueTrigger::create(entt::registry& ecs, strb::rect2i triggerRect, bool triggerOnce, bool entityMustBeGrounded, int conversationId) {
+    entt::entity DialogueTrigger::create(entt::registry& ecs, strb::rect2f triggerRect, bool triggerOnce, bool entityMustBeGrounded, int conversationId) {
         entt::entity ent = ecs.create();
 
         CollisionComponent collision;

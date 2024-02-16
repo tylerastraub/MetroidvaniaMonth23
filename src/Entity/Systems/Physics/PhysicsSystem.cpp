@@ -28,14 +28,16 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
         auto& physics = ecs.get<PhysicsComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
 
+        physics.velocity.y += physics.gravity;
         transform.lastPosition = transform.position;
         if(physics.velocity.y != 0.f) {
             transform.position.y += physics.velocity.y * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
-            moveToZero(physics.velocity.y, friction);
             if(physics.velocity.y > physics.maxVelocity.y) physics.velocity.y = physics.maxVelocity.y;
             else if(physics.velocity.y < physics.maxVelocity.y * -1.f) physics.velocity.y = physics.maxVelocity.y * -1.f;
         }
+        if(physics.touchingGround) physics.offGroundCount = 0;
+        else physics.offGroundCount++;
     }
 }
 

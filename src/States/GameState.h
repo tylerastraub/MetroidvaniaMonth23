@@ -4,12 +4,14 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Controller.h"
+#include "Level.h"
 // Systems
 #include "InputSystem.h"
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
+#include "CollisionSystem.h"
+#include "ScriptSystem.h"
 
-#include <memory>
 #include <entt/entity/registry.hpp>
 
 class GameState: public State {
@@ -34,8 +36,12 @@ private:
 
     entt::entity _player;
 
+    Level _level;
+
     InputSystem _inputSystem;
     RenderSystem _renderSystem;
     PhysicsSystem _physicsSystem;
+    CollisionSystem _collisionSystem;
+    ScriptSystem _scriptSystem;
 
 };

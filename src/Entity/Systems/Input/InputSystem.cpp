@@ -28,13 +28,11 @@ void InputSystem::update(entt::registry& ecs) {
         }
 
         // Y inputs
-        if(inputDown(InputEvent::UP) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::UP) != allowedInputs.end()) {
-            physics.velocity.y -= physics.acceleration.y;
-        }
-        else if(inputDown(InputEvent::DOWN) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::DOWN) != allowedInputs.end()) {
-            physics.velocity.y += physics.acceleration.y;
+        if(inputDown(InputEvent::JUMP) &&
+           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::JUMP) != allowedInputs.end()) {
+            physics.velocity.y = physics.jumpPower * -1;
+            physics.touchingGround = false;
+            physics.offGroundCount = physics.coyoteTime;
         }
     }
 }

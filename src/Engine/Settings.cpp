@@ -53,16 +53,18 @@ void Settings::saveSettings() {
         "",
         "# To comment lines out, use the # symbol.",
         "# Note that if there are any conflicts, the last occurrence of a keybinding is used.",
-        "UP=" + _displayStringMap[InputEvent::UP].first,
-        "DOWN=" + _displayStringMap[InputEvent::DOWN].first,
         "LEFT=" + _displayStringMap[InputEvent::LEFT].first,
         "RIGHT=" + _displayStringMap[InputEvent::RIGHT].first,
-        "ACTION=" + _displayStringMap[InputEvent::ACTION].first,
+        "DOWN=" + _displayStringMap[InputEvent::DOWN].first,
+        "JUMP=" + _displayStringMap[InputEvent::UP].first,
+        "INTERACT=" + _displayStringMap[InputEvent::INTERACT].first,
+        "ATTACK=" + _displayStringMap[InputEvent::ATTACK].first,
         "",
         "# ========== GAMEPAD CONTROLS CONFIG ==========",
         "",
         "# Note that bindings follow the standard XBox controller layout, although there is support for the PS4/PS5 touchbad button.",
-        "ACTION=" + _displayStringMap[InputEvent::ACTION].second,
+        "INTERACT=" + _displayStringMap[InputEvent::INTERACT].second,
+        "ATTACK=" + _displayStringMap[InputEvent::ATTACK].second,
         "",
         "# ========== LIST OF ALL KEY BINDINGS ==========",
         "",
@@ -186,8 +188,11 @@ InputEvent Settings::convertStringToInputEvent(std::string s) {
     else if(s == "JUMP") {
         return InputEvent::JUMP;
     }
-    else if(s == "ACTION") {
-        return InputEvent::ACTION;
+    else if(s == "INTERACT") {
+        return InputEvent::INTERACT;
+    }
+    else if(s == "ATTACK") {
+        return InputEvent::ATTACK;
     }
 
     return InputEvent::NOVAL;

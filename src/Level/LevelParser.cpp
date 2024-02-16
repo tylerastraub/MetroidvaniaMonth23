@@ -72,7 +72,7 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                 }
                                 entt::entity trigger = prefab::DialogueTrigger::create(
                                     ecs,
-                                    {(int) aabb.left, (int) aabb.top, (int) aabb.width, (int) aabb.height},
+                                    {aabb.left, aabb.top, aabb.width, aabb.height},
                                     triggerOnce,
                                     entityMustBeGrounded,
                                     conversationId
@@ -107,7 +107,7 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                 }
                                 entt::entity trigger = prefab::PrefabSpawnTrigger::create(
                                     ecs,
-                                    {(int) aabb.left, (int) aabb.top, (int) aabb.width, (int) aabb.height},
+                                    {aabb.left, aabb.top, aabb.width, aabb.height},
                                     triggerOnce,
                                     entityMustBeGrounded,
                                     prefabType,
@@ -123,17 +123,23 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                     for(const auto& object : objects) {
                         int xPos = object.getPosition().x / level.getTileSize();
                         int yPos = object.getPosition().y / level.getTileSize();
-                        Tile tile = level.getTileAt(xPos, yPos);
-                        if(object.getClass() == "solid") {
-                            tile.type = TileType::SOLID;
+                        int xSpan = object.getAABB().width / level.getTileSize();
+                        int ySpan = object.getAABB().height / level.getTileSize();
+                        for(int x = xPos; x < xPos + xSpan; ++x) {
+                            for(int y = yPos; y < yPos + ySpan; ++y) {
+                                Tile tile = level.getTileAt(x, y);
+                                if(object.getClass() == "solid") {
+                                    tile.type = TileType::SOLID;
+                                }
+                                else if(object.getClass() == "hazard") {
+                                    tile.type = TileType::HAZARD;
+                                }
+                                else if(object.getClass() == "platform") {
+                                    tile.type = TileType::PLATFORM;
+                                }
+                                level.setTileAt(x, y, tile);
+                            }
                         }
-                        else if(object.getClass() == "hazard") {
-                            tile.type = TileType::HAZARD;
-                        }
-                        else if(object.getClass() == "platform") {
-                            tile.type = TileType::PLATFORM;
-                        }
-                        level.setTileAt(xPos, yPos, tile);
                     }
                 }
             }
