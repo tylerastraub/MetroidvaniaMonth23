@@ -127,6 +127,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 physics.velocity.y = 0;
                 collision.collidingDown = true;
                 physics.touchingGround = true;
+                physics.jumping = false;
                 physics.onPlatform = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::PLATFORM);
             }
             else {

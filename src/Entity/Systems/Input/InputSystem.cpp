@@ -19,20 +19,33 @@ void InputSystem::update(entt::registry& ecs) {
 
         // X inputs
         if(inputDown(InputEvent::LEFT) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::LEFT) != allowedInputs.end()) {
-            physics.velocity.x -= physics.acceleration.x;
+           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::LEFT) != allowedInputs.end() &&
+           inputUp(InputEvent::RIGHT)) {
+            physics.velocity.x -= (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
         }
         else if(inputDown(InputEvent::RIGHT) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::RIGHT) != allowedInputs.end()) {
-            physics.velocity.x += physics.acceleration.x;
+           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::RIGHT) != allowedInputs.end() &&
+           inputUp(InputEvent::LEFT)) {
+            physics.velocity.x += (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
         }
 
         // Y inputs
-        if(inputDown(InputEvent::JUMP) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::JUMP) != allowedInputs.end()) {
-            physics.velocity.y = physics.jumpPower * -1;
-            physics.touchingGround = false;
-            physics.offGroundCount = physics.coyoteTime;
+        if(inputDown(InputEvent::JUMP)) {
+            if(inputPressed(InputEvent::JUMP) &&
+               std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::JUMP) != allowedInputs.end()) {
+                physics.velocity.y = physics.jumpPower * -1;
+                physics.touchingGround = false;
+                physics.jumping = true;
+                physics.offGroundCount = physics.coyoteTime;
+            }
+            else if(physics.jumping && physics.offGroundCount < physics.jumpTime) {
+                physics.velocity.y = physics.jumpPower * -1;
+            }
+        }
+        else if(inputUp(InputEvent::JUMP) && physics.velocity.y < 0 && physics.jumping && physics.offGroundCount > physics.shortJumpTime) {
+            physics.jumping = 0;
+            physics.velocity.y = physics.gravity * -3.f; // give a 3 tick buffer before falling down to make it look smoother
+            physics.offGroundCount = physics.jumpTime;
         }
     }
 }
@@ -85,7 +98,7 @@ bool InputSystem::inputUp(InputEvent input) {
             _keyboard->isKeyUp(_settings->getScancode(InputEvent::DOWN));
     }
     else {
-        return _controller->isButtonUp(_settings->getButton(input)) || _keyboard->isKeyUp(_settings->getScancode(input));
+        return _controller->isButtonUp(_settings->getButton(input)) && _keyboard->isKeyUp(_settings->getScancode(input));
     }
 }
 

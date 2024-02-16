@@ -13,11 +13,11 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
 
         transform.lastPosition = transform.position;
         if(physics.velocity.x != 0.f) {
+            if(physics.velocity.x > physics.maxVelocity.x) physics.velocity.x = physics.maxVelocity.x;
+            else if(physics.velocity.x < physics.maxVelocity.x * -1.f) physics.velocity.x = physics.maxVelocity.x * -1.f;
             transform.position.x += physics.velocity.x * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
             moveToZero(physics.velocity.x, friction);
-            if(physics.velocity.x > physics.maxVelocity.x) physics.velocity.x = physics.maxVelocity.x;
-            else if(physics.velocity.x < physics.maxVelocity.x * -1.f) physics.velocity.x = physics.maxVelocity.x * -1.f;
         }
     }
 }
@@ -31,10 +31,10 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
         physics.velocity.y += physics.gravity;
         transform.lastPosition = transform.position;
         if(physics.velocity.y != 0.f) {
-            transform.position.y += physics.velocity.y * timescale;
-            float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
             if(physics.velocity.y > physics.maxVelocity.y) physics.velocity.y = physics.maxVelocity.y;
             else if(physics.velocity.y < physics.maxVelocity.y * -1.f) physics.velocity.y = physics.maxVelocity.y * -1.f;
+            transform.position.y += physics.velocity.y * timescale;
+            float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
         }
         if(physics.touchingGround) physics.offGroundCount = 0;
         else physics.offGroundCount++;

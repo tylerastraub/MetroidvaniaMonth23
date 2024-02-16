@@ -40,11 +40,15 @@ namespace prefab {
         ecs.emplace<TransformComponent>(player, pos, pos);
 
         PhysicsComponent physics;
-        physics.maxVelocity = {70.f, 400.f};
-        physics.frictionCoefficient = 15.f;
-        physics.acceleration = {30.f, 0.f};
-        physics.jumpPower = 240.f;
-        physics.gravity = 8.f;
+        physics.maxVelocity = {120.f, 240.f};
+        physics.frictionCoefficient = 40.f;
+        physics.airFrictionCoefficient = 20.f;
+        physics.acceleration = {80.f, 0.f};
+        physics.airAcceleration = {40.f, 0.f};
+        physics.jumpPower = 250.f;
+        physics.gravity = 12.5f;
+        physics.jumpTime = 11;
+        physics.shortJumpTime = 7;
         ecs.emplace<PhysicsComponent>(player, physics);
 
         ecs.emplace<RenderComponent>(player, RenderComponent{{0, 0, 24, 32}});

@@ -10,9 +10,14 @@ struct PhysicsComponent {
 
     bool touchingGround = false;
     bool onPlatform = false;
-    int offGroundCount = 0; // Number of frames the entity has been off the ground
-    int coyoteTime = 4; // Number of frames entity can jump after leaving ground
+
+    bool jumping = false;
+    int offGroundCount = 0; // Number of ticks the entity has been off the ground
+    int coyoteTime = 4; // Number of ticks entity can jump after leaving ground
+    int jumpTime = 10; // Maximum number of ticks entity can jump for
+    int shortJumpTime = 6; // Minimum number of ticks entity can jump for
     float jumpPower = 0.f;
+
     float frictionCoefficient = 10.f;
     float airFrictionCoefficient = 2.f;
     float gravity = 10.f;
