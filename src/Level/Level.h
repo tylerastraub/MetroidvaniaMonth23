@@ -15,7 +15,7 @@ public:
     ~Level() = default;
 
     void allocateTilemap(int width, int height);
-    void render(int xOffset, int yOffset);
+    void render(strb::vec2f renderOffset);
 
     void setTilemap(std::vector<std::vector<Tile>> tilemap);
     void setLightMap(std::shared_ptr<FloatingPointLightMap> lightMap);

@@ -11,6 +11,7 @@
 #include "PhysicsSystem.h"
 #include "CollisionSystem.h"
 #include "ScriptSystem.h"
+#include "CameraSystem.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -43,5 +44,6 @@ private:
     PhysicsSystem _physicsSystem;
     CollisionSystem _collisionSystem;
     ScriptSystem _scriptSystem;
+    CameraSystem _cameraSystem;
 
 };

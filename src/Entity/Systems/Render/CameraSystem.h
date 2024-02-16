@@ -1,17 +1,19 @@
 #pragma once
 #include "vec2.h"
 
+#include <entt/entity/registry.hpp>
+
 class CameraSystem {
 public:
     CameraSystem() = default;
     ~CameraSystem() = default;
 
-    void update(float timescale);
+    void update(entt::registry& ecs, float timescale);
 
-    void setGoalCameraOffset(float x, float y);
+    void setCameraGoal(entt::entity goalEntity);
     void setCurrentCameraOffset(float x, float y);
-    void setGameSize(int x, int y);
-    void setLevelSize(int x, int y);
+    void setGameSize(strb::vec2i gameSize);
+    void setLevelSize(strb::vec2i levelSize);
     void setCameraSpeed(float cameraSpeed);
 
     strb::vec2f getCurrentCameraOffset();
@@ -21,6 +23,7 @@ public:
 private:
     strb::vec2f _currentCameraOffset = {0.f, 0.f};
     strb::vec2f _goalCameraOffset = {0.f, 0.f};
+    entt::entity _cameraGoal = entt::null;
     
     /**
      * Percent of distance camera moves between camera and target. For instance,
@@ -32,7 +35,7 @@ private:
      * - 0.5f = very fast
      * - 1.f = no smooth camera, instantly locks onto target
      */
-    float _cameraSpeed = 0.075f;
+    float _cameraSpeed = 0.2f;
 
     strb::vec2i _gameSize = {0, 0}; // The size of the game window in pixels
     strb::vec2i _levelSize = {0, 0}; // The level size in pixels

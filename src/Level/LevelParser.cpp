@@ -5,6 +5,7 @@
 // Prefabs
 #include "DialogueTrigger.h"
 #include "PrefabSpawnTrigger.h"
+#include "Player.h"
 
 #include <algorithm>
 #include <iostream>
@@ -49,8 +50,9 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                 const auto& objects = objectLayer.getObjects();
                 if(layer->getName() == "objects") {
                     for(const auto& object : objects) {
-                        if(object.getName() == "insert prefab name here") {
-                            // create prefab here
+                        strb::vec2f objPos = {object.getPosition().x, object.getPosition().y};
+                        if(object.getName() == "player") {
+                            level.setPlayerId(prefab::Player::create(ecs, objPos));
                         }
                         // ============================== TRIGGERS ==============================
                         else if(object.getName() == "trigger") {

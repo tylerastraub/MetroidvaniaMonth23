@@ -9,10 +9,9 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 bool GameState::init() {
     _level = LevelParser::parseLevelFromTmx(_ecs, "res/tiled/test_level.tmx", SpritesheetID::TILESET_DEFAULT);
+    _player = _level.getPlayerId();
     
     initSystems();
-
-    _player = prefab::Player::create(_ecs, {148.f, 64.f});
 
     return true;
 }
@@ -28,6 +27,9 @@ void GameState::tick(float timescale) {
     _physicsSystem.updateY(_ecs, timescale);
     _collisionSystem.updateLevelCollisionsOnYAxis(_ecs, _level);
     
+    _cameraSystem.update(_ecs, timescale);
+    _renderOffset = _cameraSystem.getCurrentCameraOffset();
+
     _renderSystem.update(_ecs, timescale);
 
     // Input updates
@@ -40,7 +42,7 @@ void GameState::render() {
     SDL_SetRenderDrawColor(getRenderer(), 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(getRenderer());
 
-    _level.render(_renderOffset.x, _renderOffset.y);
+    _level.render(_renderOffset);
 
     _renderSystem.render(getRenderer(), _ecs, _renderOffset);
     
@@ -62,6 +64,15 @@ void GameState::handleMouseInput(SDL_Event e) {
 
 void GameState::initSystems() {
     _inputSystem.init(getKeyboard(), getController(), getSettings());
+
     _renderSystem.setRenderBounds(getGameSize());
+
     _scriptSystem.init(getAudioPlayer());
+
+    _cameraSystem.setCameraGoal(_player);
+    _cameraSystem.setGameSize(getGameSize());
+    _cameraSystem.setLevelSize({
+        _level.getTilemapWidth() * _level.getTileSize(),
+        _level.getTilemapHeight() * _level.getTileSize()
+    });
 }

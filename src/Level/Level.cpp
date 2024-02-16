@@ -15,12 +15,12 @@ void Level::allocateTilemap(int width, int height) {
     _tilemap = tilemap;
 }
 
-void Level::render(int xOffset, int yOffset) {
+void Level::render(strb::vec2f renderOffset) {
     if(_tileset == nullptr) return;
     for(int x = 0; x < _tilemapWidth; ++x) {
         for(int y = 0; y < _tilemapHeight; ++y) {
-            if((x + 1) * _tileSize + xOffset < 0 || x * _tileSize + xOffset > _tilemapWidth * _tileSize ||
-               (y + 1) * _tileSize + yOffset < 0 || y * _tileSize + yOffset > _tilemapHeight * _tileSize) {
+            if((x + 1) * _tileSize + renderOffset.x < 0 || x * _tileSize + renderOffset.x > _tilemapWidth * _tileSize ||
+               (y + 1) * _tileSize + renderOffset.y < 0 || y * _tileSize + renderOffset.y > _tilemapHeight * _tileSize) {
                 continue;
                }
             Tile t = getTileAt(x, y);
@@ -32,7 +32,7 @@ void Level::render(int xOffset, int yOffset) {
             // in future, these properties could be added to tile struct
             _tileset->setIsAnimated(false);
 
-            _tileset->render(x * _tileSize + xOffset, y * _tileSize + yOffset, t.spritesheetRect.w, t.spritesheetRect.h);
+            _tileset->render(x * _tileSize + renderOffset.x, y * _tileSize + renderOffset.y, t.spritesheetRect.w, t.spritesheetRect.h);
         }
     }
 }
