@@ -112,6 +112,11 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 if(t.type == TileType::SOLID) {
                     tileCollisions.push_back({x, bottomRightTile.y});
                 }
+                else if(t.type == TileType::PLATFORM) {
+                    if(transform.lastPosition.y + collision.collisionRectOffset.y + collision.collisionRect.h - 1 < bottomRightTile.y * ts) {
+                        tileCollisions.push_back({x, bottomRightTile.y});
+                    }
+                }
             }
 
             if(tileCollisions.size()) {
@@ -122,10 +127,12 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 physics.velocity.y = 0;
                 collision.collidingDown = true;
                 physics.touchingGround = true;
+                physics.onPlatform = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::PLATFORM);
             }
             else {
                 collision.collidingDown = false;
                 physics.touchingGround = false;
+                physics.onPlatform = false;
             }
         }
     }

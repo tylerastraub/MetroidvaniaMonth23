@@ -3,10 +3,19 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "test_level.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
+        "test_level.tmx": {
+            "scale": 4.845,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 160.16511867905058,
+                "y": 96.18163054695563
+            }
+        },
         "test_map.tmx": {
             "scale": 4.845,
             "selectedLayer": 0,
@@ -14,6 +23,10 @@
                 "x": 160.16511867905058,
                 "y": 96.18163054695563
             }
+        },
+        "tileset_default.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 11
         }
     },
     "last.imagePath": "F:/Dev/MetroidvaniaMonth23/res/spritesheet",
@@ -23,9 +36,13 @@
     "map.tileWidth": 16,
     "map.width": 20,
     "openFiles": [
+        "tileset_default.tsx",
+        "test_level.tmx"
     ],
     "project": "mvm23.tiled-project",
     "recentFiles": [
+        "tileset_default.tsx",
+        "test_level.tmx",
         "test_map.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",

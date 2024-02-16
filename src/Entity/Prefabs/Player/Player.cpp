@@ -43,7 +43,7 @@ namespace prefab {
         physics.maxVelocity = {70.f, 400.f};
         physics.frictionCoefficient = 15.f;
         physics.acceleration = {30.f, 0.f};
-        physics.jumpPower = 220.f;
+        physics.jumpPower = 240.f;
         physics.gravity = 8.f;
         ecs.emplace<PhysicsComponent>(player, physics);
 

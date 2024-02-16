@@ -9,6 +9,7 @@ struct PhysicsComponent {
     strb::vec2f maxVelocity = {0.f, 0.f};
 
     bool touchingGround = false;
+    bool onPlatform = false;
     int offGroundCount = 0; // Number of frames the entity has been off the ground
     int coyoteTime = 4; // Number of frames entity can jump after leaving ground
     float jumpPower = 0.f;
