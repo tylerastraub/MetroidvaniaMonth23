@@ -2,6 +2,7 @@
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
 #include "CollisionComponent.h"
+#include "PowerupComponent.h"
 
 void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level level) {
     auto view = ecs.view<TransformComponent, CollisionComponent, PhysicsComponent>();
@@ -39,6 +40,13 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
             }
             else {
                 collision.collidingLeft = false;
+                if(physics.wallSliding) {
+                    physics.wallSliding = false;
+                    physics.offWallCount = physics.wallJumpTime;
+                    physics.velocity.x = 0.f;
+                    transform.position.x = transform.lastPosition.x;
+                    collision.collisionRect.x = transform.position.x + collision.collisionRectOffset.x;
+                }
             }
         }
         else if(physics.velocity.x > 0) {
@@ -61,7 +69,18 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
             }
             else {
                 collision.collidingRight = false;
+                if(physics.wallSliding) {
+                    physics.wallSliding = false;
+                    physics.offWallCount = physics.wallJumpTime;
+                    physics.velocity.x = 0.f;
+                    transform.position.x = transform.lastPosition.x;
+                    collision.collisionRect.x = transform.position.x + collision.collisionRectOffset.x;
+                }
             }
+        }
+        else {
+            collision.collidingLeft = false;
+            collision.collidingRight = false;
         }
     }
 }
@@ -84,6 +103,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
         std::vector<strb::vec2i> tileCollisions;
         if(physics.velocity.y < 0) {
             collision.collidingDown = false;
+            physics.wallSliding = false;
             // get all tiles above us
             for(int x = topLeftTile.x; x <= bottomRightTile.x; ++x) {
                 Tile t = level.getTileAt(x, topLeftTile.y);
@@ -128,13 +148,19 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 collision.collidingDown = true;
                 physics.touchingGround = true;
                 physics.jumping = false;
-                physics.onPlatform = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::PLATFORM);
+                physics.wallJumping = false;
+                physics.wallSliding = false;
+                collision.onPlatform = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::PLATFORM);
             }
             else {
                 collision.collidingDown = false;
                 physics.touchingGround = false;
-                physics.onPlatform = false;
+                collision.onPlatform = false;
             }
+        }
+        else {
+            collision.collidingUp = false;
+            collision.collidingDown = false;
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "PhysicsSystem.h"
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
+#include "CollisionComponent.h"
 
 #include <iostream>
 #include <algorithm>
@@ -11,13 +12,18 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
         auto& physics = ecs.get<PhysicsComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
 
+        if(physics.wallSliding && ecs.all_of<CollisionComponent>(ent)) {
+            auto collision = ecs.get<CollisionComponent>(ent);
+            if(collision.collidingLeft) physics.velocity.x = physics.acceleration.x * -1.f;
+            else if(collision.collidingRight) physics.velocity.x = physics.acceleration.x;
+        }
         transform.lastPosition = transform.position;
         if(physics.velocity.x != 0.f) {
             if(physics.velocity.x > physics.maxVelocity.x) physics.velocity.x = physics.maxVelocity.x;
             else if(physics.velocity.x < physics.maxVelocity.x * -1.f) physics.velocity.x = physics.maxVelocity.x * -1.f;
             transform.position.x += physics.velocity.x * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
-            moveToZero(physics.velocity.x, friction);
+            if(physics.offWallCount >= physics.wallJumpTime) moveToZero(physics.velocity.x, friction);
         }
     }
 }
@@ -28,7 +34,12 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
         auto& physics = ecs.get<PhysicsComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
 
-        physics.velocity.y += physics.gravity;
+        if(physics.wallSliding) {
+            physics.velocity.y = physics.wallSlideVelocity;
+        }
+        else {
+            physics.velocity.y += physics.gravity;
+        }
         transform.lastPosition = transform.position;
         if(physics.velocity.y != 0.f) {
             if(physics.velocity.y > physics.maxVelocity.y) physics.velocity.y = physics.maxVelocity.y;
@@ -36,8 +47,18 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
             transform.position.y += physics.velocity.y * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
         }
-        if(physics.touchingGround) physics.offGroundCount = 0;
-        else physics.offGroundCount++;
+        if(physics.touchingGround) {
+            physics.offGroundCount = 0;
+        }
+        else {
+            physics.offGroundCount++;
+        }
+        if(physics.wallSliding) {
+            physics.offWallCount = 0;
+        }
+        else {
+            physics.offWallCount++;
+        }
     }
 }
 

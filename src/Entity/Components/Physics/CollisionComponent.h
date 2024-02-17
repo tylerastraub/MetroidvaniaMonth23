@@ -11,4 +11,6 @@ struct CollisionComponent {
     bool collidingRight = false;
     bool collidingUp = false;
     bool collidingDown = false;
+    
+    bool onPlatform = false;
 };

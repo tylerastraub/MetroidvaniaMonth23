@@ -2,6 +2,7 @@
 
 enum class InputEvent {
     NOVAL = -1,
+    _MIN_ = 0,
     UP,
     DOWN,
     LEFT,
@@ -9,4 +10,5 @@ enum class InputEvent {
     JUMP,
     INTERACT,
     ATTACK,
+    _MAX_,
 };

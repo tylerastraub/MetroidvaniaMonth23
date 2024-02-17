@@ -1,6 +1,7 @@
 #include "InputSystem.h"
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
+#include "CollisionComponent.h"
 
 #include <algorithm>
 
@@ -15,37 +16,14 @@ void InputSystem::update(entt::registry& ecs) {
     for(auto ent : entities) {
         auto& inputComponent = ecs.get<InputComponent>(ent);
         auto& physics = ecs.get<PhysicsComponent>(ent);
+        auto collision = ecs.get<CollisionComponent>(ent);
         auto allowedInputs = inputComponent.allowedInputs;
 
-        // X inputs
-        if(inputDown(InputEvent::LEFT) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::LEFT) != allowedInputs.end() &&
-           inputUp(InputEvent::RIGHT)) {
-            physics.velocity.x -= (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
-        }
-        else if(inputDown(InputEvent::RIGHT) &&
-           std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::RIGHT) != allowedInputs.end() &&
-           inputUp(InputEvent::LEFT)) {
-            physics.velocity.x += (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
-        }
-
-        // Y inputs
-        if(inputDown(InputEvent::JUMP)) {
-            if(inputPressed(InputEvent::JUMP) &&
-               std::find(allowedInputs.begin(), allowedInputs.end(), InputEvent::JUMP) != allowedInputs.end()) {
-                physics.velocity.y = physics.jumpPower * -1;
-                physics.touchingGround = false;
-                physics.jumping = true;
-                physics.offGroundCount = physics.coyoteTime;
-            }
-            else if(physics.jumping && physics.offGroundCount < physics.jumpTime) {
-                physics.velocity.y = physics.jumpPower * -1;
-            }
-        }
-        else if(inputUp(InputEvent::JUMP) && physics.velocity.y < 0 && physics.jumping && physics.offGroundCount > physics.shortJumpTime) {
-            physics.jumping = 0;
-            physics.velocity.y = physics.gravity * -3.f; // give a 3 tick buffer before falling down to make it look smoother
-            physics.offGroundCount = physics.jumpTime;
+        for(int i = static_cast<int>(InputEvent::_MIN_); i != static_cast<int>(InputEvent::_MAX_); ++i) {
+            InputEvent input = static_cast<InputEvent>(i);
+            inputComponent.lastTickInputTime[input] = inputComponent.inputTime[input];
+            if(inputDown(input)) inputComponent.inputTime[input]++;
+            else if(inputUp(input)) inputComponent.inputTime[input] = 0;
         }
     }
 }

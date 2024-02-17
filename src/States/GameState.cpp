@@ -17,10 +17,9 @@ bool GameState::init() {
 }
 
 void GameState::tick(float timescale) {
-    // Logic goes here BEFORE input updates!
-    _scriptSystem.update(_ecs, timescale);
-
     _inputSystem.update(_ecs);
+
+    _scriptSystem.update(_ecs, timescale);
 
     _physicsSystem.updateX(_ecs, timescale);
     _collisionSystem.updateLevelCollisionsOnXAxis(_ecs, _level);
