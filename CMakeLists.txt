@@ -17,10 +17,11 @@ elseif(APPLE)
     find_package(SDL2 REQUIRED)
     find_package(SDL2_image REQUIRED)
     find_package(SDL2TTF REQUIRED)
+    # find_package(IMGUI REQUIRED)
 endif()
 
 set(TMXLITE_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/lib/tmxlite")
-set(IMGUI_SOURCE_DIR "${CMAKE_SOURCE_DIR}/lib/imgui")
+# set(IMGUI_SOURCE_DIR "${CMAKE_SOURCE_DIR}/lib/imgui")
 
 set(SOURCE_INCLUDES
     ${TMXLITE_LIBRARY_DIR}/include
@@ -115,25 +116,25 @@ if(WIN32)
         ${TMXLITE_LIBRARY_DIR}/src/ObjectTypes.cpp
     )
 
-    set(IMGUI_SOURCES
-        ${IMGUI_SOURCE_DIR}/imgui_demo.cpp
-        ${IMGUI_SOURCE_DIR}/imgui_draw.cpp
-        ${IMGUI_SOURCE_DIR}/imgui_tables.cpp
-        ${IMGUI_SOURCE_DIR}/imgui_widgets.cpp
-        ${IMGUI_SOURCE_DIR}/imgui.cpp
-        ${IMGUI_SOURCE_DIR}/imgui.h
-        ${IMGUI_SOURCE_DIR}/imconfig.h
-        ${IMGUI_SOURCE_DIR}/imgui_internal.h
-        ${IMGUI_SOURCE_DIR}/imstb_rectpack.h
-        ${IMGUI_SOURCE_DIR}/imstb_textedit.h
-        ${IMGUI_SOURCE_DIR}/imstb_truetype.h
-        ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
-        ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdl2.h
-        ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
-        ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.h
-        ${IMGUI_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
-        ${IMGUI_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
-    )
+    # set(IMGUI_SOURCES
+    #     ${IMGUI_SOURCE_DIR}/imgui_demo.cpp
+    #     ${IMGUI_SOURCE_DIR}/imgui_draw.cpp
+    #     ${IMGUI_SOURCE_DIR}/imgui_tables.cpp
+    #     ${IMGUI_SOURCE_DIR}/imgui_widgets.cpp
+    #     ${IMGUI_SOURCE_DIR}/imgui.cpp
+    #     ${IMGUI_SOURCE_DIR}/imgui.h
+    #     ${IMGUI_SOURCE_DIR}/imconfig.h
+    #     ${IMGUI_SOURCE_DIR}/imgui_internal.h
+    #     ${IMGUI_SOURCE_DIR}/imstb_rectpack.h
+    #     ${IMGUI_SOURCE_DIR}/imstb_textedit.h
+    #     ${IMGUI_SOURCE_DIR}/imstb_truetype.h
+    #     ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+    #     ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdl2.h
+    #     ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
+    #     ${IMGUI_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.h
+    #     ${IMGUI_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+    #     ${IMGUI_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
+    # )
 endif()
 
 if(WIN32)
