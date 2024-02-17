@@ -14,6 +14,8 @@ public:
     void updateLevelCollisionsOnXAxis(entt::registry& ecs, Level level);
     void updateLevelCollisionsOnYAxis(entt::registry& ecs, Level level);
 
+    void checkForCrouchCollision(entt::registry& ecs, Level level);
+
 private:
 
 };

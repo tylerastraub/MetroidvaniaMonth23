@@ -2,7 +2,7 @@
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
 #include "CollisionComponent.h"
-#include "PowerupComponent.h"
+#include "CrouchComponent.h"
 
 void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level level) {
     auto view = ecs.view<TransformComponent, CollisionComponent, PhysicsComponent>();
@@ -161,6 +161,34 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
         else {
             collision.collidingUp = false;
             collision.collidingDown = false;
+        }
+    }
+}
+
+void CollisionSystem::checkForCrouchCollision(entt::registry& ecs, Level level) {
+    auto view = ecs.view<CollisionComponent, CrouchComponent>();
+    for(auto entity : view) {
+        auto collision = ecs.get<CollisionComponent>(entity).collisionRect;
+        auto& crouch = ecs.get<CrouchComponent>(entity);
+        int ts = level.getTileSize();
+
+        crouch.canUncrouch = true;
+        if(!crouch.crouching) return;
+        
+        float crouchOffset = crouch.standingHeight - crouch.crouchingHeight;
+        strb::rect2f crouchCollider = {collision.x, collision.y - crouchOffset, collision.w, 1};
+        strb::vec2i topLeftTile = {static_cast<int>(std::floor(crouchCollider.x)) / ts,
+            static_cast<int>(std::floor(crouchCollider.y)) / ts};
+        strb::vec2i bottomRightTile = {static_cast<int>(std::ceil(crouchCollider.x + crouchCollider.w - 1)) / ts,
+            static_cast<int>(std::ceil(crouchCollider.y + crouchCollider.h)) / ts};
+            
+        // check tiles above crouch collider
+        for(int x = topLeftTile.x; x <= bottomRightTile.x; ++x) {
+            Tile t = level.getTileAt(x, topLeftTile.y);
+            if(t.type == TileType::SOLID) {
+                crouch.canUncrouch = false;
+                break;
+            }
         }
     }
 }

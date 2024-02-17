@@ -11,22 +11,21 @@ Overview
 - 1 boss, multiple areas. Boss has a bunch of the enemy powers
 
 Ancient Powers (some just ideas)
-- Moving
-- Jumping
-- Dialogue box
-- Dash (or run)
-- Walljump
-- Double jump
+- ✓ Moving
+- ✓ Jumping
+- ✓ Dialogue box
+- ✓ Walljump
+- ✓ Crouching/crawling
+- Dash (or run, or some other movement option)
 - High jump
 - Attack (melee? ranged? multiple types?)
 - Time stop
 - Slow fall (parachute?)
-- Charge (or some way to break through walls that can be broken)
-- Crawling
+- Charge (or some way to break through walls that can be broken. can be same as dash if we go that way)
 
 Enemy Powers
 - Movement modify (can't go one direction - or either direction)
-- Mega gravity (no jumping/double jumping)
+- Mega gravity (no jumping)
 - Ice blast (no wall jumping)
 - Speed-up (no time stop)
 - Energy shield (sucks in projectile attacks)

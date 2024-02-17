@@ -1,9 +1,10 @@
 #pragma once
 
 struct PowerupComponent {
-    bool leftRightMovement = true;
+    bool moveLeft = true;
+    bool moveRight = true;
     bool jump = true;
     bool walljump = true;
-    bool crouch = false;
-    bool dialogue = false;
+    bool crouch = true;
+    bool dialogue = true;
 };

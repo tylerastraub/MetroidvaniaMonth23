@@ -33,6 +33,8 @@ public:
 private:
     strb::vec2f _renderOffset = {0.f, 0.f};
 
+    bool _debug = false;
+
     entt::registry _ecs;
 
     entt::entity _player;

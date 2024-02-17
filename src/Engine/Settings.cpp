@@ -39,6 +39,7 @@ void Settings::loadSettings(std::string path) {
             }
         }
     }
+    _keysMap[InputEvent::TOGGLE_DEBUG] = SDL_SCANCODE_F1; // non-configurable
 }
 
 void Settings::saveSettings() {

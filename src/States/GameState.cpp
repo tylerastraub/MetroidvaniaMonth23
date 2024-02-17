@@ -2,6 +2,7 @@
 #include "RandomGen.h"
 #include "LevelParser.h"
 #include "Player.h"
+#include "CollisionComponent.h"
 
 #include <chrono>
 
@@ -18,6 +19,7 @@ bool GameState::init() {
 
 void GameState::tick(float timescale) {
     _inputSystem.update(_ecs);
+    if(_inputSystem.inputPressed(InputEvent::TOGGLE_DEBUG)) _debug = !_debug;
 
     _scriptSystem.update(_ecs, timescale);
 
@@ -25,6 +27,7 @@ void GameState::tick(float timescale) {
     _collisionSystem.updateLevelCollisionsOnXAxis(_ecs, _level);
     _physicsSystem.updateY(_ecs, timescale);
     _collisionSystem.updateLevelCollisionsOnYAxis(_ecs, _level);
+    _collisionSystem.checkForCrouchCollision(_ecs, _level);
     
     _cameraSystem.update(_ecs, timescale);
     _renderOffset = _cameraSystem.getCurrentCameraOffset();
@@ -44,6 +47,16 @@ void GameState::render() {
     _level.render(_renderOffset);
 
     _renderSystem.render(getRenderer(), _ecs, _renderOffset);
+
+    if(_debug) {
+        SDL_SetRenderDrawColor(getRenderer(), 0x00, 0xFF, 0x00, 0xAF);
+        auto view = _ecs.view<CollisionComponent>();
+        for(auto ent : view) {
+            auto c = _ecs.get<CollisionComponent>(ent).collisionRect;
+            SDL_FRect r = {c.x + _renderOffset.x, c.y + _renderOffset.y, c.w, c.h};
+            SDL_RenderDrawRectF(getRenderer(), &r);
+        }
+    }
     
     // ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(getRenderer());

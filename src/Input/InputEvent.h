@@ -10,5 +10,6 @@ enum class InputEvent {
     JUMP,
     INTERACT,
     ATTACK,
+    TOGGLE_DEBUG,
     _MAX_,
 };

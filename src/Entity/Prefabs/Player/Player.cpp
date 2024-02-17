@@ -9,6 +9,7 @@
 #include "CollisionComponent.h"
 #include "ScriptComponent.h"
 #include "PowerupComponent.h"
+#include "CrouchComponent.h"
 
 namespace {
     class PlayerScript : public IScript {
@@ -19,19 +20,26 @@ namespace {
         void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
             auto& input = ecs.get<InputComponent>(owner);
             auto& physics = ecs.get<PhysicsComponent>(owner);
-            auto collision = ecs.get<CollisionComponent>(owner);
+            auto& render = ecs.get<RenderComponent>(owner);
+            auto& collision = ecs.get<CollisionComponent>(owner);
+            auto& transform = ecs.get<TransformComponent>(owner);
+            auto& crouchComp = ecs.get<CrouchComponent>(owner);
+            auto powerup = ecs.get<PowerupComponent>(owner);
 
             // set allowed inputs
             input.allowedInputs = {InputEvent::LEFT, InputEvent::RIGHT};
             if(physics.offGroundCount < physics.coyoteTime || physics.wallSliding) {
                 input.allowedInputs.push_back(InputEvent::JUMP);
             }
+            if(physics.touchingGround && powerup.crouch) {
+                input.allowedInputs.push_back(InputEvent::DOWN);
+            }
 
-            // x inputs
+            // ==================== X INPUTS ====================
             if(input.inputTime[InputEvent::LEFT] > 0 &&
                input.inputTime[InputEvent::RIGHT] == 0 &&
                isValidInput(input.allowedInputs, InputEvent::LEFT)) {
-                if(physics.velocity.y > 0) {
+                if(physics.velocity.y > 0 && powerup.walljump) {
                     if(collision.collidingLeft) {
                         physics.wallSliding = true;
                         physics.offWallCount = 0;
@@ -48,7 +56,7 @@ namespace {
             else if(input.inputTime[InputEvent::RIGHT] > 0 &&
                input.inputTime[InputEvent::LEFT] == 0 &&
                isValidInput(input.allowedInputs, InputEvent::RIGHT)) {
-                if(physics.velocity.y > 0) {
+                if(physics.velocity.y > 0 && powerup.walljump) {
                     if(collision.collidingRight) {
                         physics.wallSliding = true;
                         physics.offWallCount = 0;
@@ -65,7 +73,7 @@ namespace {
             else if(!collision.collidingLeft && !collision.collidingRight) {
                 physics.wallSliding = false;
             }
-            // y inputs
+            // ==================== Y INPUTS ====================
             if(input.inputTime[InputEvent::JUMP] > 0) {
                 if(input.inputTime[InputEvent::JUMP] == 1 &&
                    isValidInput(input.allowedInputs, InputEvent::JUMP)) {
@@ -102,6 +110,26 @@ namespace {
                     physics.velocity.y = physics.gravity * -3.f; // see above comment
                     physics.offGroundCount = physics.jumpTime;
                 }
+            }
+            // ==================== CROUCHING ====================
+            if(input.inputTime[InputEvent::DOWN] > 0 &&
+               isValidInput(input.allowedInputs, InputEvent::DOWN)) {
+                if(!crouchComp.crouching) {
+                    crouchComp.crouching = true;
+                    collision.collisionRect.h = crouchComp.crouchingHeight;
+                    collision.collisionRectOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight;
+                    collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
+                    render.renderQuad.h = crouchComp.crouchingHeight; // todo: delete
+                    render.renderQuadOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
+                }
+            }
+            else if(crouchComp.canUncrouch && crouchComp.crouching) {
+                crouchComp.crouching = false;
+                collision.collisionRect.h = crouchComp.standingHeight;
+                collision.collisionRectOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight;
+                collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
+                render.renderQuad.h = crouchComp.standingHeight; // todo: delete
+                render.renderQuadOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
             }
         }
 
@@ -146,6 +174,8 @@ namespace prefab {
         ecs.emplace<ScriptComponent>(player, ScriptComponent{std::make_shared<PlayerScript>()});
 
         ecs.emplace<PowerupComponent>(player, PowerupComponent{});
+
+        ecs.emplace<CrouchComponent>(player, CrouchComponent{32.f, 16.f});
 
         return player;
     }

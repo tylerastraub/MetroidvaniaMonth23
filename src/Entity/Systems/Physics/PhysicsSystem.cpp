@@ -2,6 +2,7 @@
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
 #include "CollisionComponent.h"
+#include "CrouchComponent.h"
 
 #include <iostream>
 #include <algorithm>
@@ -19,8 +20,13 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
         }
         transform.lastPosition = transform.position;
         if(physics.velocity.x != 0.f) {
-            if(physics.velocity.x > physics.maxVelocity.x) physics.velocity.x = physics.maxVelocity.x;
-            else if(physics.velocity.x < physics.maxVelocity.x * -1.f) physics.velocity.x = physics.maxVelocity.x * -1.f;
+            float maxVelocity = physics.maxVelocity.x;
+            if(ecs.all_of<CrouchComponent>(ent)) {
+                auto crouchComp = ecs.get<CrouchComponent>(ent);
+                if(crouchComp.crouching) maxVelocity *= crouchComp.crouchSpeedModifier;
+            }
+            if(physics.velocity.x > maxVelocity) physics.velocity.x = maxVelocity;
+            else if(physics.velocity.x < maxVelocity * -1.f) physics.velocity.x = maxVelocity * -1.f;
             transform.position.x += physics.velocity.x * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
             if(physics.offWallCount >= physics.wallJumpTime) moveToZero(physics.velocity.x, friction);
