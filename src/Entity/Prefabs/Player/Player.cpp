@@ -80,7 +80,7 @@ namespace {
                     if(physics.wallSliding) {
                         physics.wallSliding = false;
                         physics.wallJumping = true;
-                        float coefficient = (collision.collidingLeft) ? 2.f : -2.f;
+                        float coefficient = (collision.collidingLeft) ? 1.5f : -1.5f;
                         physics.velocity.x = physics.maxVelocity.x * coefficient;
                         physics.velocity.y = physics.jumpPower * -0.8f;
                     }

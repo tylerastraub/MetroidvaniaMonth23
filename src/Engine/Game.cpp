@@ -28,7 +28,7 @@ bool Game::init() {
         if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {
             std::cout << "Warning: Nearest pixel sampling not enabled!" << std::endl;
         }
-        if(!SDL_SetHint(SDL_HINT_RENDER_VSYNC, "0")) {
+        if(!SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")) {
             std::cout << "Warning: Vsync not enabled!" << std::endl;
         }
 
@@ -246,23 +246,23 @@ void Game::startGameLoop() {
         // ImGui::NewFrame();
 
         dTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime);
-        if(dTime.count() >= (frameWait * 1000.f - frameRemainder)) {
-            startTime = std::chrono::high_resolution_clock::now();
-            millisecondCount += dTime.count();
-            frameRemainder += std::abs(frameWait * 1000.f - std::ceil(frameWait * 1000.f));
-            if(frameRemainder > 1.f) frameRemainder = 0.f;
+        if(dTime.count() / (ticks + 1) >= frameWait * 1000.f) {
+            // frameRemainder += std::abs(frameWait * 1000.f - std::ceil(frameWait * 1000.f));
+            // if(frameRemainder > 1.f) frameRemainder = 0.f;
             _currentState->tick(frameWait);
             ticks++;
         }
 
-        _currentState->render();
-        frames++;
-
-        if(millisecondCount >= 1000) {
+        if(dTime.count() >= 1000) {
             std::cout << "FPS: " << frames << " | TPS: " << ticks << std::endl;
             frames = 0;
             ticks = 0;
             millisecondCount = 0;
+            startTime = std::chrono::high_resolution_clock::now();
+        }
+        else {
+            _currentState->render();
+            frames++;
         }
     }
 
