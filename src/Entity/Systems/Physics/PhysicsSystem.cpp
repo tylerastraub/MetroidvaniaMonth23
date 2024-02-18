@@ -29,7 +29,8 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
             else if(physics.velocity.x < maxVelocity * -1.f) physics.velocity.x = maxVelocity * -1.f;
             transform.position.x += physics.velocity.x * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
-            if(physics.offWallCount >= physics.wallJumpTime) moveToZero(physics.velocity.x, friction);
+            // todo: also dont do this if attack is occuring
+            if(!physics.ignoreFriciton) moveToZero(physics.velocity.x, friction);
         }
     }
 }

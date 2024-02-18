@@ -7,4 +7,6 @@ struct PowerupComponent {
     bool walljump = true;
     bool crouch = true;
     bool dialogue = true;
+    bool groundAttack = true;
+    bool airAttack = true;
 };

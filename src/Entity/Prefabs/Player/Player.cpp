@@ -10,6 +10,8 @@
 #include "ScriptComponent.h"
 #include "PowerupComponent.h"
 #include "CrouchComponent.h"
+#include "AttackComponent.h"
+#include "DirectionComponent.h"
 
 namespace {
     class PlayerScript : public IScript {
@@ -24,18 +26,43 @@ namespace {
             auto& collision = ecs.get<CollisionComponent>(owner);
             auto& transform = ecs.get<TransformComponent>(owner);
             auto& crouchComp = ecs.get<CrouchComponent>(owner);
+            auto& attack = ecs.get<AttackComponent>(owner);
+            auto& dir = ecs.get<DirectionComponent>(owner);
             auto powerup = ecs.get<PowerupComponent>(owner);
 
-            // set allowed inputs
-            input.allowedInputs = {InputEvent::LEFT, InputEvent::RIGHT};
-            if(physics.offGroundCount < physics.coyoteTime || physics.wallSliding) {
-                input.allowedInputs.push_back(InputEvent::JUMP);
-            }
-            if(physics.touchingGround && powerup.crouch) {
-                input.allowedInputs.push_back(InputEvent::DOWN);
+            int totalAttackDuration = 0;
+            if(physics.touchingGround) totalAttackDuration = attack.groundAttackStartup + attack.groundAttackDuration;
+            else totalAttackDuration = attack.airAttackStartup + attack.airAttackDuration;
+            bool canAct = attack.attackTimer >= totalAttackDuration &&
+                         (physics.offWallCount > physics.wallJumpTime || physics.wallSliding);
+
+            // ==================== SET ALLOWED INPUTS ====================
+            input.allowedInputs = {};
+            if(canAct) {
+                if(powerup.moveLeft) {
+                    input.allowedInputs.push_back(InputEvent::LEFT);
+                }
+                if(powerup.moveRight) {
+                    input.allowedInputs.push_back(InputEvent::RIGHT);
+                }
+                if((physics.offGroundCount < physics.coyoteTime && powerup.jump) ||
+                   physics.wallSliding && powerup.walljump) {
+                    input.allowedInputs.push_back(InputEvent::JUMP);
+                }
+                if(physics.touchingGround) {
+                    if(powerup.crouch) input.allowedInputs.push_back(InputEvent::DOWN);
+                    if(powerup.groundAttack && attack.attackTimer > totalAttackDuration + attack.groundAttackCooldown) {
+                        input.allowedInputs.push_back(InputEvent::ATTACK);
+                    }
+                }
+                else {
+                    if(powerup.airAttack && attack.attackTimer > totalAttackDuration + attack.airAttackCooldown && !physics.wallSliding) {
+                        input.allowedInputs.push_back(InputEvent::ATTACK);
+                    }
+                }
             }
 
-            // ==================== X INPUTS ====================
+            // ==================== HANDLE X INPUTS ====================
             if(input.inputTime[InputEvent::LEFT] > 0 &&
                input.inputTime[InputEvent::RIGHT] == 0 &&
                isValidInput(input.allowedInputs, InputEvent::LEFT)) {
@@ -50,6 +77,7 @@ namespace {
                     }
                 }
                 if(physics.offWallCount > physics.wallJumpTime) {
+                    dir.direction = Direction::WEST;
                     physics.velocity.x -= (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
                 }
             }
@@ -67,13 +95,14 @@ namespace {
                     }
                 }
                 if(physics.offWallCount > physics.wallJumpTime) {
+                    dir.direction = Direction::EAST;
                     physics.velocity.x += (physics.touchingGround) ? physics.acceleration.x : physics.airAcceleration.x;
                 }
             }
             else if(!collision.collidingLeft && !collision.collidingRight) {
                 physics.wallSliding = false;
             }
-            // ==================== Y INPUTS ====================
+            // ==================== HANDLE Y INPUTS ====================
             if(input.inputTime[InputEvent::JUMP] > 0) {
                 if(input.inputTime[InputEvent::JUMP] == 1 &&
                    isValidInput(input.allowedInputs, InputEvent::JUMP)) {
@@ -81,6 +110,7 @@ namespace {
                         physics.wallSliding = false;
                         physics.wallJumping = true;
                         float coefficient = (collision.collidingLeft) ? 1.5f : -1.5f;
+                        dir.direction = (collision.collidingLeft) ? Direction::EAST : Direction::WEST;
                         physics.velocity.x = physics.maxVelocity.x * coefficient;
                         physics.velocity.y = physics.jumpPower * -0.8f;
                     }
@@ -102,16 +132,20 @@ namespace {
                 if(physics.wallJumping && physics.offWallCount > physics.wallJumpTime - 1) {
                     physics.wallJumping = false;
                     physics.jumping = false;
-                    physics.velocity.y = physics.gravity * -3.f; // give a 3 tick buffer before falling down to make it look smoother
+                    if(attack.attackTimer > totalAttackDuration) {
+                        physics.velocity.y = physics.gravity * -3.f; // give a 3 tick buffer before falling down to make it look smoother
+                    }
                     physics.offGroundCount = physics.jumpTime;
                 }
                 else if(!physics.wallJumping && physics.offGroundCount > physics.shortJumpTime) {
                     physics.jumping = false;
-                    physics.velocity.y = physics.gravity * -3.f; // see above comment
+                    if(attack.attackTimer > totalAttackDuration) {
+                        physics.velocity.y = physics.gravity * -3.f; // see above comment
+                    }
                     physics.offGroundCount = physics.jumpTime;
                 }
             }
-            // ==================== CROUCHING ====================
+            // ==================== HANDLE CROUCHING ====================
             if(input.inputTime[InputEvent::DOWN] > 0 &&
                isValidInput(input.allowedInputs, InputEvent::DOWN)) {
                 if(!crouchComp.crouching) {
@@ -131,6 +165,49 @@ namespace {
                 render.renderQuad.h = crouchComp.standingHeight; // todo: delete
                 render.renderQuadOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
             }
+
+            // ==================== HANDLE ATTACKING ====================
+            if(input.inputTime[InputEvent::ATTACK] == 1 &&
+               isValidInput(input.allowedInputs, InputEvent::ATTACK)) {
+                attack.attackTimer = 0;
+                float coefficient = (dir.direction == Direction::EAST) ? 1.f : -1.f;
+                strb::vec2f force = (physics.touchingGround) ? attack.groundAttackForce : attack.airAttackForce;
+                physics.velocity.x += force.x * coefficient;
+                physics.velocity.y = force.y;
+            }
+            if(physics.touchingGround) {
+                if(attack.attackTimer < attack.groundAttackStartup) {
+                    // ???
+                }
+                else if(attack.attackTimer < attack.groundAttackDuration) {
+                    // todo
+                    attack.groundAttackHitboxes = {};
+                }
+                else if(attack.attackTimer < attack.groundAttackCooldown) {
+                    if(attack.groundAttackHitboxes.size()) attack.groundAttackHitboxes.clear();
+                }
+            }
+            else {
+                if(attack.attackTimer < attack.airAttackStartup) {
+                    // ???
+                }
+                else if(attack.attackTimer < attack.airAttackDuration) {
+                    // todo
+                    attack.airAttackHitboxes = {};
+                }
+                else if(attack.attackTimer < attack.airAttackCooldown) {
+                    if(attack.airAttackHitboxes.size()) attack.airAttackHitboxes.clear();
+                }
+            }
+
+            // ==================== TIMER AND COMPONENT UPDATES ====================
+            if(physics.offWallCount < physics.wallJumpTime || attack.attackTimer < totalAttackDuration) {
+                physics.ignoreFriciton = true;
+            }
+            else {
+                physics.ignoreFriciton = false;
+            }
+            ++attack.attackTimer;
         }
 
     private:
@@ -165,6 +242,8 @@ namespace prefab {
         physics.shortJumpTime = 7;
         ecs.emplace<PhysicsComponent>(player, physics);
 
+        ecs.emplace<DirectionComponent>(player, DirectionComponent{Direction::EAST});
+
         ecs.emplace<RenderComponent>(player, RenderComponent{{0, 0, 24, 32}});
 
         ecs.emplace<CollisionComponent>(player, CollisionComponent{{pos.x, pos.y , 24.f, 32.f}, {0, 0}});
@@ -176,6 +255,19 @@ namespace prefab {
         ecs.emplace<PowerupComponent>(player, PowerupComponent{});
 
         ecs.emplace<CrouchComponent>(player, CrouchComponent{32.f, 16.f});
+
+        AttackComponent attack;
+        attack.groundAttackStartup = 3;
+        attack.groundAttackDuration = 3;
+        attack.groundAttackCooldown = 4;
+        attack.groundAttackForce = {40.f, 0.f};
+        attack.groundAttackKnockback = {50.f, -20.f};
+        attack.airAttackStartup = 3;
+        attack.airAttackDuration = 10;
+        attack.airAttackCooldown = 17;
+        attack.airAttackForce = {20.f, -150.f};
+        attack.airAttackKnockback = 50.f;
+        ecs.emplace<AttackComponent>(player, attack);
 
         return player;
     }

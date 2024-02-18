@@ -35,6 +35,7 @@ set(SOURCE_INCLUDES
     ${PROJECT_SOURCE_DIR}/src/Engine/StandardTypes
     ${PROJECT_SOURCE_DIR}/src/Entity
     ${PROJECT_SOURCE_DIR}/src/Entity/Components
+    ${PROJECT_SOURCE_DIR}/src/Entity/Components/Combat
     ${PROJECT_SOURCE_DIR}/src/Entity/Components/Generic
     ${PROJECT_SOURCE_DIR}/src/Entity/Components/Input
     ${PROJECT_SOURCE_DIR}/src/Entity/Components/Physics

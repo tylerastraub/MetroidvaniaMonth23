@@ -10,6 +10,7 @@ struct PhysicsComponent {
 
     float frictionCoefficient = 10.f;
     float airFrictionCoefficient = 2.f;
+    bool ignoreFriciton = false;
     float gravity = 10.f;
 
     bool touchingGround = false;
