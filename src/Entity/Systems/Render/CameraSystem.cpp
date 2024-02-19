@@ -3,11 +3,11 @@
 #include "RenderComponent.h"
 
 void CameraSystem::update(entt::registry& ecs, float timescale) {
-    if(_cameraGoal == entt::null) return;
-
-    auto eRender = ecs.get<RenderComponent>(_cameraGoal);
-    _goalCameraOffset = {eRender.renderQuad.x + eRender.renderQuad.w / 2 - _gameSize.x / 2,
-        eRender.renderQuad.y + eRender.renderQuad.h / 2 - _gameSize.y / 2};
+    if(_cameraGoal != entt::null) {
+        auto eRender = ecs.get<RenderComponent>(_cameraGoal);
+        _goalCameraOffset = {eRender.renderQuad.x + eRender.renderQuad.w / 2 - _gameSize.x / 2,
+            eRender.renderQuad.y + eRender.renderQuad.h / 2 - _gameSize.y / 2};
+    }
         
     // keep camera goal in bounds (and allow smooth movement when at level borders)
     if(_goalCameraOffset.x < 0) {
@@ -34,8 +34,12 @@ void CameraSystem::setCameraGoal(entt::entity goalEntity) {
     _cameraGoal = goalEntity;
 }
 
-void CameraSystem::setCurrentCameraOffset(float x, float y) {
-    _currentCameraOffset = {x, y};
+void CameraSystem::setGoalCameraOffset(strb::vec2f goalOffset) {
+    _goalCameraOffset = goalOffset;
+}
+
+void CameraSystem::setCurrentCameraOffset(strb::vec2f currentOffset) {
+    _currentCameraOffset = currentOffset;
 }
 
 void CameraSystem::setGameSize(strb::vec2i gameSize) {

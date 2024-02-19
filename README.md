@@ -16,9 +16,9 @@ Ancient Powers (some just ideas)
 - ✓ Dialogue box
 - ✓ Walljump
 - ✓ Crouching/crawling
+- Attack (melee? ranged? multiple types?)
 - Dash (or run, or some other movement option)
 - High jump
-- Attack (melee? ranged? multiple types?)
 - Time stop
 - Slow fall (parachute?)
 - Charge (or some way to break through walls that can be broken. can be same as dash if we go that way)

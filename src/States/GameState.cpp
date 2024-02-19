@@ -3,10 +3,23 @@
 #include "LevelParser.h"
 #include "Player.h"
 #include "CollisionComponent.h"
+#include "HitboxComponent.h"
+#include "HurtboxComponent.h"
+#include "TransformComponent.h"
 
 #include <chrono>
 
 std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().time_since_epoch().count()};
+
+/**
+ * TODO:
+ * - Add attack
+ * - Add basic enemy
+ * - Add hitboxes/hurtboxes, include hitstop
+ * - Add room loading/transitions
+ * - Add support for camera locking onto singular room (or onto singular non-entity point)
+ * - Add doors with keys/locks
+*/
 
 bool GameState::init() {
     _level = LevelParser::parseLevelFromTmx(_ecs, "res/tiled/test_level.tmx", SpritesheetID::TILESET_DEFAULT);
@@ -49,12 +62,33 @@ void GameState::render() {
     _renderSystem.render(getRenderer(), _ecs, _renderOffset);
 
     if(_debug) {
-        SDL_SetRenderDrawColor(getRenderer(), 0x00, 0xFF, 0x00, 0xAF);
-        auto view = _ecs.view<CollisionComponent>();
-        for(auto ent : view) {
+        // collision box render
+        SDL_SetRenderDrawColor(getRenderer(), 0x00, 0xFF, 0x00, 0x64);
+        auto collisionView = _ecs.view<CollisionComponent>();
+        for(auto ent : collisionView) {
             auto c = _ecs.get<CollisionComponent>(ent).collisionRect;
             SDL_FRect r = {c.x + _renderOffset.x, c.y + _renderOffset.y, c.w, c.h};
             SDL_RenderDrawRectF(getRenderer(), &r);
+        }
+        // hitbox render
+        SDL_SetRenderDrawColor(getRenderer(), 0xFF, 0x00, 0x00, 0x64);
+        auto hitboxView = _ecs.view<HitboxComponent>();
+        for(auto ent : hitboxView) {
+            auto hitboxes = _ecs.get<HitboxComponent>(ent).hitboxes;
+            auto pos = _ecs.get<TransformComponent>(ent).position;
+            for(auto hitbox : hitboxes) {
+                SDL_FRect r = {pos.x + hitbox.offset.x + _renderOffset.x, pos.y + hitbox.offset.y + _renderOffset.y, hitbox.bounds.w, hitbox.bounds.h};
+                SDL_RenderFillRectF(getRenderer(), &r);
+            }
+        }
+        // hurtbox render
+        SDL_SetRenderDrawColor(getRenderer(), 0xFF, 0xFF, 0x00, 0x64);
+        auto hurtboxView = _ecs.view<HurtboxComponent>();
+        for(auto ent : hurtboxView) {
+            auto hurtbox = _ecs.get<HurtboxComponent>(ent);
+            auto pos = _ecs.get<TransformComponent>(ent).position;
+            SDL_FRect r = {pos.x + hurtbox.offset.x + _renderOffset.x, pos.y + hurtbox.offset.y + _renderOffset.y, hurtbox.bounds.w, hurtbox.bounds.h};
+            SDL_RenderFillRectF(getRenderer(), &r);
         }
     }
     

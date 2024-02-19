@@ -28,7 +28,7 @@ bool Game::init() {
         if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0")) {
             std::cout << "Warning: Nearest pixel sampling not enabled!" << std::endl;
         }
-        if(!SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")) {
+        if(!SDL_SetHint(SDL_HINT_RENDER_VSYNC, "0")) {
             std::cout << "Warning: Vsync not enabled!" << std::endl;
         }
 

@@ -12,6 +12,8 @@
 #include "CrouchComponent.h"
 #include "AttackComponent.h"
 #include "DirectionComponent.h"
+#include "HitboxComponent.h"
+#include "HurtboxComponent.h"
 
 namespace {
     class PlayerScript : public IScript {
@@ -28,6 +30,8 @@ namespace {
             auto& crouchComp = ecs.get<CrouchComponent>(owner);
             auto& attack = ecs.get<AttackComponent>(owner);
             auto& dir = ecs.get<DirectionComponent>(owner);
+            auto& hitbox = ecs.get<HitboxComponent>(owner);
+            auto& hurtbox = ecs.get<HurtboxComponent>(owner);
             auto powerup = ecs.get<PowerupComponent>(owner);
 
             int totalAttackDuration = 0;
@@ -35,6 +39,8 @@ namespace {
             else totalAttackDuration = attack.airAttackStartup + attack.airAttackDuration;
             bool canAct = attack.attackTimer >= totalAttackDuration &&
                          (physics.offWallCount > physics.wallJumpTime || physics.wallSliding);
+                         
+            if(physics.touchingGround != physics.touchingGroundLastTick || physics.wallSliding) attack.attackTimer = 1000;
 
             // ==================== SET ALLOWED INPUTS ====================
             input.allowedInputs = {};
@@ -153,6 +159,8 @@ namespace {
                     collision.collisionRect.h = crouchComp.crouchingHeight;
                     collision.collisionRectOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight;
                     collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
+                    hurtbox.bounds.h = 16.f;
+                    hurtbox.offset.y = 16.f;
                     render.renderQuad.h = crouchComp.crouchingHeight; // todo: delete
                     render.renderQuadOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
                 }
@@ -162,6 +170,8 @@ namespace {
                 collision.collisionRect.h = crouchComp.standingHeight;
                 collision.collisionRectOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight;
                 collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
+                hurtbox.bounds.h = 32.f;
+                hurtbox.offset.y = 0.f;
                 render.renderQuad.h = crouchComp.standingHeight; // todo: delete
                 render.renderQuadOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
             }
@@ -179,24 +189,33 @@ namespace {
                 if(attack.attackTimer < attack.groundAttackStartup) {
                     // ???
                 }
-                else if(attack.attackTimer < attack.groundAttackDuration) {
-                    // todo
-                    attack.groundAttackHitboxes = {};
+                else if(attack.attackTimer < attack.groundAttackStartup + attack.groundAttackDuration) {
+                    Hitbox groundAttackHitbox;
+                    groundAttackHitbox.bounds = {0.f, 0.f, 32.f, 40.f};
+                    if(dir.direction == Direction::EAST) {
+                        groundAttackHitbox.offset = {24.f, -8.f};
+                    }
+                    else if(dir.direction == Direction::WEST) {
+                        groundAttackHitbox.offset = {-32.f, -8.f};
+                    }
+                    hitbox.hitboxes.push_back(groundAttackHitbox);
                 }
-                else if(attack.attackTimer < attack.groundAttackCooldown) {
-                    if(attack.groundAttackHitboxes.size()) attack.groundAttackHitboxes.clear();
+                else if(attack.attackTimer >= attack.groundAttackStartup + attack.groundAttackDuration) {
+                    if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
                 }
             }
             else {
                 if(attack.attackTimer < attack.airAttackStartup) {
                     // ???
                 }
-                else if(attack.attackTimer < attack.airAttackDuration) {
-                    // todo
-                    attack.airAttackHitboxes = {};
+                else if(attack.attackTimer < attack.airAttackStartup + attack.airAttackDuration) {
+                    Hitbox airAttackHitbox;
+                    airAttackHitbox.bounds = {0.f, 0.f, 48.f, 48.f};
+                    airAttackHitbox.offset = {-12.f, -8.f};
+                    hitbox.hitboxes.push_back(airAttackHitbox);
                 }
-                else if(attack.attackTimer < attack.airAttackCooldown) {
-                    if(attack.airAttackHitboxes.size()) attack.airAttackHitboxes.clear();
+                else if(attack.attackTimer >= attack.airAttackStartup + attack.airAttackDuration) {
+                    if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
                 }
             }
 
@@ -258,16 +277,20 @@ namespace prefab {
 
         AttackComponent attack;
         attack.groundAttackStartup = 3;
-        attack.groundAttackDuration = 3;
+        attack.groundAttackDuration = 4;
         attack.groundAttackCooldown = 4;
         attack.groundAttackForce = {40.f, 0.f};
         attack.groundAttackKnockback = {50.f, -20.f};
         attack.airAttackStartup = 3;
         attack.airAttackDuration = 10;
         attack.airAttackCooldown = 17;
-        attack.airAttackForce = {20.f, -150.f};
+        attack.airAttackForce = {0.f, -150.f};
         attack.airAttackKnockback = 50.f;
         ecs.emplace<AttackComponent>(player, attack);
+
+        ecs.emplace<HitboxComponent>(player, HitboxComponent{});
+
+        ecs.emplace<HurtboxComponent>(player, HurtboxComponent{{0, 0, 24, 32}});
 
         return player;
     }

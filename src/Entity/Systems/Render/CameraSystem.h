@@ -11,7 +11,8 @@ public:
     void update(entt::registry& ecs, float timescale);
 
     void setCameraGoal(entt::entity goalEntity);
-    void setCurrentCameraOffset(float x, float y);
+    void setGoalCameraOffset(strb::vec2f goalOffset);
+    void setCurrentCameraOffset(strb::vec2f currentOffset);
     void setGameSize(strb::vec2i gameSize);
     void setLevelSize(strb::vec2i levelSize);
     void setCameraSpeed(float cameraSpeed);

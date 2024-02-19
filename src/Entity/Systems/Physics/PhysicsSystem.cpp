@@ -48,6 +48,7 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
             physics.velocity.y += physics.gravity;
         }
         transform.lastPosition = transform.position;
+        physics.touchingGroundLastTick = physics.touchingGround;
         if(physics.velocity.y != 0.f) {
             if(physics.velocity.y > physics.maxVelocity.y) physics.velocity.y = physics.maxVelocity.y;
             else if(physics.velocity.y < physics.maxVelocity.y * -1.f) physics.velocity.y = physics.maxVelocity.y * -1.f;

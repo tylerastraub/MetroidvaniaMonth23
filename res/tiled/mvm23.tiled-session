@@ -9,11 +9,11 @@
     ],
     "fileStates": {
         "test_level.tmx": {
-            "scale": 4.845,
+            "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 160.16511867905058,
-                "y": 96.18163054695563
+                "x": 306.5,
+                "y": 256.5
             }
         },
         "test_map.tmx": {

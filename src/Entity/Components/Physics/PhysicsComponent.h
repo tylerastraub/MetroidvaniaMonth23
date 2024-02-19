@@ -14,6 +14,7 @@ struct PhysicsComponent {
     float gravity = 10.f;
 
     bool touchingGround = false;
+    bool touchingGroundLastTick = false;
 
     // Walljumping stuff
     bool wallSliding = false; // only gets set true if walljumping is enabled
