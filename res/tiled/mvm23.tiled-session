@@ -10,10 +10,10 @@
     "fileStates": {
         "test_level.tmx": {
             "scale": 2,
-            "selectedLayer": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 306.5,
-                "y": 256.5
+                "x": 306,
+                "y": 256
             }
         },
         "test_map.tmx": {

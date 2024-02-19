@@ -33,19 +33,19 @@ namespace {
             auto& dir = ecs.get<DirectionComponent>(owner);
             auto& hitbox = ecs.get<HitboxComponent>(owner);
             auto& hurtbox = ecs.get<HurtboxComponent>(owner);
-            auto hitstop = ecs.get<HitstopComponent>(owner);
+            auto& hitstop = ecs.get<HitstopComponent>(owner);
             auto powerup = ecs.get<PowerupComponent>(owner);
 
             int totalAttackDuration = 0;
             if(physics.touchingGround) totalAttackDuration = attack.groundAttackStartup + attack.groundAttackDuration;
             else totalAttackDuration = attack.airAttackStartup + attack.airAttackDuration;
-            bool canAct = attack.attackTimer >= totalAttackDuration &&
-                         (physics.offWallCount > physics.wallJumpTime || physics.wallSliding) &&
-                          hitstop.hitstopCount >= hitstop.hitstopDuration;
+            bool canAct = (physics.offWallCount > physics.wallJumpTime || physics.wallSliding) &&
+                          hurtbox.hitstunCount >= hurtbox.hitstunTime;
                          
             if(physics.touchingGround != physics.touchingGroundLastTick ||
                physics.wallSliding ||
-               hitstop.hitstopCount < hitstop.hitstopDuration) {
+               hurtbox.hitstunCount < hurtbox.hitstunTime
+            ) {
                 attack.attackTimer = 1000;
             }
 
@@ -152,7 +152,7 @@ namespace {
                 }
                 else if(!physics.wallJumping && physics.offGroundCount > physics.shortJumpTime) {
                     physics.jumping = false;
-                    if(attack.attackTimer > totalAttackDuration) {
+                    if(attack.attackTimer > totalAttackDuration && !attack.airAttacked) {
                         physics.velocity.y = physics.gravity * -3.f; // see above comment
                     }
                     physics.offGroundCount = physics.jumpTime;
@@ -188,11 +188,13 @@ namespace {
                isValidInput(input.allowedInputs, InputEvent::ATTACK)) {
                 attack.attackTimer = 0;
                 float coefficient = (dir.direction == Direction::EAST) ? 1.f : -1.f;
-                strb::vec2f force = (physics.touchingGround) ? attack.groundAttackForce : attack.airAttackForce;
+                strb::vec2f force = (physics.touchingGround) ? strb::vec2f{0.f, 0.f} : attack.airAttackForce;
                 physics.velocity.x += force.x * coefficient;
                 physics.velocity.y = force.y;
+                if(!physics.touchingGround) attack.airAttacked = true;
             }
             if(physics.touchingGround) {
+                attack.airAttacked = false;
                 if(attack.attackTimer < attack.groundAttackStartup) {
                     // ???
                 }
@@ -206,8 +208,8 @@ namespace {
                         groundAttackHitbox.offset = {-32.f, -8.f};
                     }
                     hitbox.hitboxes.push_back(groundAttackHitbox);
-                    hitbox.selfKnockback = {20.f, 0.f};
-                    hitbox.hitstun = 0;
+                    hitbox.selfKnockback = attack.groundAttackForce;
+                    hitstop.hitstopDurationOnAttack = 0;
                 }
                 else if(attack.attackTimer >= attack.groundAttackStartup + attack.groundAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -219,11 +221,11 @@ namespace {
                 }
                 else if(attack.attackTimer < attack.airAttackStartup + attack.airAttackDuration) {
                     Hitbox airAttackHitbox;
-                    airAttackHitbox.bounds = {0.f, 0.f, 48.f, 48.f};
-                    airAttackHitbox.offset = {-12.f, -8.f};
+                    airAttackHitbox.bounds = {0.f, 0.f, 64.f, 64.f};
+                    airAttackHitbox.offset = {-20.f, -16.f};
                     hitbox.hitboxes.push_back(airAttackHitbox);
-                    hitbox.selfKnockback = {0.f, 0.f};
-                    hitbox.hitstun = 100;
+                    hitbox.selfKnockback = attack.airAttackForce;
+                    hitstop.hitstopDurationOnAttack = 100;
                 }
                 else if(attack.attackTimer >= attack.airAttackStartup + attack.airAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -231,19 +233,22 @@ namespace {
             }
 
             // ==================== TIMER AND COMPONENT UPDATES ====================
-            if(physics.offWallCount < physics.wallJumpTime || attack.attackTimer < totalAttackDuration) {
-                physics.ignoreFriciton = true;
+            if(physics.offWallCount < physics.wallJumpTime || hurtbox.invulnCount < ON_HURT_KNOCKBACK_DURATION) {
+                physics.ignoreFriction = true;
             }
             else {
-                physics.ignoreFriciton = false;
+                physics.ignoreFriction = false;
             }
-            ++attack.attackTimer;
+            if(hitstop.hitstopCount >= hitstop.hitstopCountLimit) ++attack.attackTimer;
         }
 
     private:
         bool isValidInput(std::vector<InputEvent> allowedInputs, InputEvent input) {
             return std::find(allowedInputs.begin(), allowedInputs.end(), input) != allowedInputs.end();
         }
+        
+        const int ON_HIT_FORCE_DURATION = 200; // on hitting something, how many ticks do we get knocked back for?
+        const int ON_HURT_KNOCKBACK_DURATION = 500; // when hit, how many ms do we fly away without slowing down?
 
     };
 
@@ -318,13 +323,13 @@ namespace prefab {
         attack.groundAttackStartup = 3;
         attack.groundAttackDuration = 4;
         attack.groundAttackCooldown = 4;
-        attack.groundAttackForce = {20.f, 0.f};
-        attack.groundAttackKnockback = {50.f, -20.f};
-        attack.airAttackStartup = 3;
-        attack.airAttackDuration = 10;
-        attack.airAttackCooldown = 17;
+        attack.groundAttackForce = {120.f, 0.f};
+        attack.groundAttackKnockback = {0.f, 0.f};
+        attack.airAttackStartup = 4;
+        attack.airAttackDuration = 6;
+        attack.airAttackCooldown = 20;
         attack.airAttackForce = {0.f, -150.f};
-        attack.airAttackKnockback = 50.f;
+        attack.airAttackKnockback = 0.f;
         ecs.emplace<AttackComponent>(player, attack);
 
         HitboxComponent hitboxComp;
@@ -340,7 +345,7 @@ namespace prefab {
         hurtboxComp.invulnCount = 2000;
         ecs.emplace<HurtboxComponent>(player, hurtboxComp);
 
-        ecs.emplace<HitstopComponent>(player, HitstopComponent{200});
+        ecs.emplace<HitstopComponent>(player, HitstopComponent{});
 
         return player;
     }

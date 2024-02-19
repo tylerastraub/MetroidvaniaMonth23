@@ -13,12 +13,14 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 /**
  * TODO:
- * - Add knockback on hit
- *     - Freeze player on hit, then send them flying
+ * - Make hitboxes only able to attack hurtboxes once
+ * - Make player ignore friction on enemy hit for set duration (ON_HIT_FORCE_DURATION)
  * - Finish basic enemy
+ * - ART!!!! Start player art!!! I'm serious!!!!!!
  * - Add room loading/transitions
  * - Add support for camera locking onto singular room (or onto singular non-entity point)
  * - Add doors with keys/locks
+ * - Add more enemies
 */
 
 bool GameState::init() {

@@ -14,4 +14,7 @@ struct HurtboxComponent {
 
     int invulnTime = 100;
     int invulnCount = 100;
+
+    int hitstunTime = 0;
+    int hitstunCount = 0;
 };

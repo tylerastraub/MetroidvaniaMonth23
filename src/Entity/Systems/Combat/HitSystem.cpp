@@ -15,6 +15,7 @@ void HitSystem::update(entt::registry& ecs, float timescale) {
     for(auto ent : hitstopView) {
         auto& hitstopComp = ecs.get<HitstopComponent>(ent);
         hitstopComp.hitstopCount += timescale * 1000.f;
+        if(hitstopComp.hitstopCount > hitstopComp.hitstopCountLimit) hitstopComp.hitstopCountLimit = 0;
     }
     // hitbox pos update
     for(auto ent : hitboxView) {
@@ -33,7 +34,13 @@ void HitSystem::update(entt::registry& ecs, float timescale) {
         auto pos = ecs.get<TransformComponent>(ent).position;
         hurtboxComp.bounds.x = pos.x + hurtboxComp.offset.x;
         hurtboxComp.bounds.y = pos.y + hurtboxComp.offset.y;
+        if(ecs.all_of<HitstopComponent>(ent)) {
+            auto hitstopComp = ecs.get<HitstopComponent>(ent);
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
+        }
+        hurtboxComp.hitstunCount += timescale * 1000.f;
         hurtboxComp.invulnCount += timescale * 1000.f;
+        if(hurtboxComp.hitstunCount > hurtboxComp.hitstunTime) hurtboxComp.hitstunTime = 0;
     }
 }
 
@@ -46,7 +53,7 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
         // hitstop check
         if(ecs.all_of<HitstopComponent>(attacker)) {
             auto hitstopComp = ecs.get<HitstopComponent>(attacker);
-            if(hitstopComp.hitstopCount < hitstopComp.hitstopDuration) continue;
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
         }
         // then check we have a valid hitbox component
         auto& hitboxComp = ecs.get<HitboxComponent>(attacker);
@@ -63,21 +70,40 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
                 if(RectUtils::isIntersecting(hitbox.bounds, hurtboxComp.bounds)) {
                     // we have a hit!
                     hurtboxComp.invulnCount = 0;
+                    hurtboxComp.hitstunCount = 0;
+                    hurtboxComp.hitstunTime = hitboxComp.hitstun;
+                    // deduct hp
                     if(ecs.all_of<HealthComponent>(defender)) {
                         ecs.get<HealthComponent>(defender).health -= hitboxComp.damage;
                     }
-                    // apply hitstop
+                    // apply hitstop to attacker
                     if(ecs.all_of<HitstopComponent>(attacker)) {
-                        auto& hitstopComp = ecs.get<HitstopComponent>(attacker);
-                        hitstopComp.hitstopCount = 0;
+                        auto& attackerHitstopComp = ecs.get<HitstopComponent>(attacker);
+                        attackerHitstopComp.hitstopCount = 0;
+                        attackerHitstopComp.hitstopCountLimit = attackerHitstopComp.hitstopDurationOnAttack;
+                        // apply hitstop to defender
+                        if(ecs.all_of<HitstopComponent>(defender)) {
+                            auto& defenderHitstopComp = ecs.get<HitstopComponent>(defender);
+                            defenderHitstopComp.hitstopCount = 0;
+                            defenderHitstopComp.hitstopCountLimit = attackerHitstopComp.hitstopDurationOnAttack;
+                        }
                     }
-                    // apply self knockback
+                    auto attackerHurtbox = ecs.get<HurtboxComponent>(attacker).bounds;
+                    float attackerCenter = attackerHurtbox.x + attackerHurtbox.w / 2.f;
+                    float defenderCenter = hurtboxComp.bounds.x + hurtboxComp.bounds.w / 2.f;
+                    // apply self knockback to attacker
                     if(ecs.all_of<PhysicsComponent>(attacker)) {
                         auto& physics = ecs.get<PhysicsComponent>(attacker);
-                        auto attackerPos = ecs.get<TransformComponent>(attacker).position;
-                        auto defenderPos = ecs.get<TransformComponent>(defender).position;
-                        physics.velocity = hitboxComp.selfKnockback;
-                        if(attackerPos.x > defenderPos.x) physics.velocity.x *= -1.f;
+                        if(physics.touchingGround) physics.velocity.x = 0;
+                        physics.velocity.x += hitboxComp.selfKnockback.x;
+                        physics.velocity.y = hitboxComp.selfKnockback.y;
+                        if(attackerCenter < defenderCenter) physics.velocity.x *= -1.f;
+                    }
+                    // apply knockback to defender
+                    if(ecs.all_of<PhysicsComponent>(defender)) {
+                        auto& physics = ecs.get<PhysicsComponent>(defender);
+                        physics.velocity = hitboxComp.knockback;
+                        if(attackerCenter > defenderCenter) physics.velocity.x *= -1.f;
                     }
                     // then trigger scripts
                     if(hitboxComp.onHitScript) hitboxComp.onHitScript->update(ecs, attacker, timescale, audio);

@@ -86,6 +86,8 @@ namespace prefab {
         hitboxComp.hitboxes.push_back({{0.f, 0.f, 16, 16}, {0.f, 0.f}});
         hitboxComp.damage = 1;
         hitboxComp.onHitScript = std::make_shared<RocklingOnHitScript>();
+        hitboxComp.hitstun = 400;
+        hitboxComp.knockback = {200.f, -200.f};
         ecs.emplace<HitboxComponent>(rockling, hitboxComp);
 
         HurtboxComponent hurtboxComp;
@@ -94,7 +96,7 @@ namespace prefab {
         hurtboxComp.onHurtScript = std::make_shared<RocklingOnHurtScript>();
         ecs.emplace<HurtboxComponent>(rockling, hurtboxComp);
 
-        ecs.emplace<HitstopComponent>(rockling, HitstopComponent{0});
+        ecs.emplace<HitstopComponent>(rockling, HitstopComponent{150});
 
         return rockling;
     }

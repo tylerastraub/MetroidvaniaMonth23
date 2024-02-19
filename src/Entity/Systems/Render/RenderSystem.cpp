@@ -13,8 +13,8 @@ void RenderSystem::update(entt::registry& ecs, float timescale) {
     auto entities = ecs.view<AnimationComponent>();
     for(auto ent : entities) {
         if(ecs.all_of<HitstopComponent>(ent)) {
-            auto hitstop = ecs.get<HitstopComponent>(ent);
-            if(hitstop.hitstopCount < hitstop.hitstopDuration) continue;
+            auto hitstopComp = ecs.get<HitstopComponent>(ent);
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
         }
         auto& animationComponent = ecs.get<AnimationComponent>(ent);
         animationComponent.msSinceAnimationStart += timescale * 1000.f;

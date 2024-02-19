@@ -3,6 +3,8 @@
 #include "PhysicsComponent.h"
 #include "CollisionComponent.h"
 #include "CrouchComponent.h"
+#include "HitstopComponent.h"
+#include "HurtboxComponent.h"
 
 #include <iostream>
 #include <algorithm>
@@ -12,6 +14,11 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
     for(auto ent : entities) {
         auto& physics = ecs.get<PhysicsComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
+
+        if(ecs.all_of<HitstopComponent>(ent)) {
+            auto hitstopComp = ecs.get<HitstopComponent>(ent);
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
+        }
 
         if(physics.wallSliding && ecs.all_of<CollisionComponent>(ent)) {
             auto collision = ecs.get<CollisionComponent>(ent);
@@ -29,8 +36,7 @@ void PhysicsSystem::updateX(entt::registry& ecs, float timescale) {
             else if(physics.velocity.x < maxVelocity * -1.f) physics.velocity.x = maxVelocity * -1.f;
             transform.position.x += physics.velocity.x * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
-            // todo: also dont do this if attack is occuring
-            if(!physics.ignoreFriciton) moveToZero(physics.velocity.x, friction);
+            if(!physics.ignoreFriction) moveToZero(physics.velocity.x, friction);
         }
     }
 }
@@ -40,6 +46,11 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
     for(auto ent : entities) {
         auto& physics = ecs.get<PhysicsComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
+
+        if(ecs.all_of<HitstopComponent>(ent)) {
+            auto hitstopComp = ecs.get<HitstopComponent>(ent);
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
+        }
 
         if(physics.wallSliding) {
             physics.velocity.y = physics.wallSlideVelocity;

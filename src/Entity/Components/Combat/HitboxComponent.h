@@ -16,6 +16,7 @@ struct HitboxComponent {
     int damage = 0;
     int hitstun = 0;
     strb::vec2f selfKnockback = {0.f, 0.f};
+    strb::vec2f knockback = {0.f, 0.f};
 
     std::shared_ptr<IScript> onHitScript = nullptr;
 };
