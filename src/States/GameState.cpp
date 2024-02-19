@@ -13,9 +13,9 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 /**
  * TODO:
- * - Add attack
- * - Add basic enemy
- * - Add hitboxes/hurtboxes, include hitstop
+ * - Add knockback on hit
+ *     - Freeze player on hit, then send them flying
+ * - Finish basic enemy
  * - Add room loading/transitions
  * - Add support for camera locking onto singular room (or onto singular non-entity point)
  * - Add doors with keys/locks
@@ -43,7 +43,7 @@ void GameState::tick(float timescale) {
     _collisionSystem.checkForCrouchCollision(_ecs, _level);
 
     _hitSystem.update(_ecs, timescale);
-    _hitSystem.checkForHitboxCollisions(_ecs);
+    _hitSystem.checkForHitboxCollisions(_ecs, timescale, getAudioPlayer());
     
     _cameraSystem.update(_ecs, timescale);
     _renderOffset = _cameraSystem.getCurrentCameraOffset();
@@ -78,9 +78,8 @@ void GameState::render() {
         auto hitboxView = _ecs.view<HitboxComponent>();
         for(auto ent : hitboxView) {
             auto hitboxes = _ecs.get<HitboxComponent>(ent).hitboxes;
-            auto pos = _ecs.get<TransformComponent>(ent).position;
             for(auto hitbox : hitboxes) {
-                SDL_FRect r = {pos.x + hitbox.offset.x + _renderOffset.x, pos.y + hitbox.offset.y + _renderOffset.y, hitbox.bounds.w, hitbox.bounds.h};
+                SDL_FRect r = {hitbox.bounds.x + _renderOffset.x, hitbox.bounds.y + _renderOffset.y, hitbox.bounds.w, hitbox.bounds.h};
                 SDL_RenderFillRectF(getRenderer(), &r);
             }
         }
@@ -89,8 +88,7 @@ void GameState::render() {
         auto hurtboxView = _ecs.view<HurtboxComponent>();
         for(auto ent : hurtboxView) {
             auto hurtbox = _ecs.get<HurtboxComponent>(ent);
-            auto pos = _ecs.get<TransformComponent>(ent).position;
-            SDL_FRect r = {pos.x + hurtbox.offset.x + _renderOffset.x, pos.y + hurtbox.offset.y + _renderOffset.y, hurtbox.bounds.w, hurtbox.bounds.h};
+            SDL_FRect r = {hurtbox.bounds.x + _renderOffset.x, hurtbox.bounds.y + _renderOffset.y, hurtbox.bounds.w, hurtbox.bounds.h};
             SDL_RenderFillRectF(getRenderer(), &r);
         }
     }

@@ -6,6 +6,7 @@
 #include "DialogueTrigger.h"
 #include "PrefabSpawnTrigger.h"
 #include "Player.h"
+#include "Rockling.h"
 
 #include <algorithm>
 #include <iostream>
@@ -51,8 +52,12 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                 if(layer->getName() == "objects") {
                     for(const auto& object : objects) {
                         strb::vec2f objPos = {object.getPosition().x, object.getPosition().y};
+                        // ============================== PREFABS ==============================
                         if(object.getName() == "player") {
                             level.setPlayerId(prefab::Player::create(ecs, objPos));
+                        }
+                        else if(object.getName() == "rockling") {
+                            prefab::Rockling::create(ecs, objPos);
                         }
                         // ============================== TRIGGERS ==============================
                         else if(object.getName() == "trigger") {

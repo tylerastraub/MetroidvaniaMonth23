@@ -19,10 +19,10 @@ void HitSystem::update(entt::registry& ecs, float timescale) {
     // hitbox pos update
     for(auto ent : hitboxView) {
         auto& hitboxComp = ecs.get<HitboxComponent>(ent);
-        auto hitboxes = hitboxComp.hitboxes;
+        auto& hitboxes = hitboxComp.hitboxes;
         if(hitboxes.empty()) continue;
         auto pos = ecs.get<TransformComponent>(ent).position;
-        for(auto hitbox : hitboxes) {
+        for(auto& hitbox : hitboxes) {
             hitbox.bounds.x = pos.x + hitbox.offset.x;
             hitbox.bounds.y = pos.y + hitbox.offset.y;
         }
@@ -37,7 +37,7 @@ void HitSystem::update(entt::registry& ecs, float timescale) {
     }
 }
 
-void HitSystem::checkForHitboxCollisions(entt::registry& ecs) {
+void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, std::shared_ptr<Audio> audio) {
     auto hitboxView = ecs.view<HitboxComponent>();
     auto hurtboxView = ecs.view<HurtboxComponent>();
     // note: this is currently N^2 + M!! very unoptimized. faster would be to use spacial partition.
@@ -71,7 +71,7 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs) {
                         auto& hitstopComp = ecs.get<HitstopComponent>(attacker);
                         hitstopComp.hitstopCount = 0;
                     }
-                    // and apply self knockback
+                    // apply self knockback
                     if(ecs.all_of<PhysicsComponent>(attacker)) {
                         auto& physics = ecs.get<PhysicsComponent>(attacker);
                         auto attackerPos = ecs.get<TransformComponent>(attacker).position;
@@ -79,6 +79,9 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs) {
                         physics.velocity = hitboxComp.selfKnockback;
                         if(attackerPos.x > defenderPos.x) physics.velocity.x *= -1.f;
                     }
+                    // then trigger scripts
+                    if(hitboxComp.onHitScript) hitboxComp.onHitScript->update(ecs, attacker, timescale, audio);
+                    if(hurtboxComp.onHurtScript) hurtboxComp.onHurtScript->update(ecs, attacker, timescale, audio);
                 }
             }
         }

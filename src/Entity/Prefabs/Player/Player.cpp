@@ -33,15 +33,21 @@ namespace {
             auto& dir = ecs.get<DirectionComponent>(owner);
             auto& hitbox = ecs.get<HitboxComponent>(owner);
             auto& hurtbox = ecs.get<HurtboxComponent>(owner);
+            auto hitstop = ecs.get<HitstopComponent>(owner);
             auto powerup = ecs.get<PowerupComponent>(owner);
 
             int totalAttackDuration = 0;
             if(physics.touchingGround) totalAttackDuration = attack.groundAttackStartup + attack.groundAttackDuration;
             else totalAttackDuration = attack.airAttackStartup + attack.airAttackDuration;
             bool canAct = attack.attackTimer >= totalAttackDuration &&
-                         (physics.offWallCount > physics.wallJumpTime || physics.wallSliding);
+                         (physics.offWallCount > physics.wallJumpTime || physics.wallSliding) &&
+                          hitstop.hitstopCount >= hitstop.hitstopDuration;
                          
-            if(physics.touchingGround != physics.touchingGroundLastTick || physics.wallSliding) attack.attackTimer = 1000;
+            if(physics.touchingGround != physics.touchingGroundLastTick ||
+               physics.wallSliding ||
+               hitstop.hitstopCount < hitstop.hitstopDuration) {
+                attack.attackTimer = 1000;
+            }
 
             // ==================== SET ALLOWED INPUTS ====================
             input.allowedInputs = {};
@@ -201,6 +207,7 @@ namespace {
                     }
                     hitbox.hitboxes.push_back(groundAttackHitbox);
                     hitbox.selfKnockback = {20.f, 0.f};
+                    hitbox.hitstun = 0;
                 }
                 else if(attack.attackTimer >= attack.groundAttackStartup + attack.groundAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -216,6 +223,7 @@ namespace {
                     airAttackHitbox.offset = {-12.f, -8.f};
                     hitbox.hitboxes.push_back(airAttackHitbox);
                     hitbox.selfKnockback = {0.f, 0.f};
+                    hitbox.hitstun = 100;
                 }
                 else if(attack.attackTimer >= attack.airAttackStartup + attack.airAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -236,6 +244,34 @@ namespace {
         bool isValidInput(std::vector<InputEvent> allowedInputs, InputEvent input) {
             return std::find(allowedInputs.begin(), allowedInputs.end(), input) != allowedInputs.end();
         }
+
+    };
+
+    
+    class PlayerOnHitScript : public IScript {
+    public:
+        PlayerOnHitScript() = default;
+        ~PlayerOnHitScript() = default;
+
+        void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
+            std::cout << "hit something!" << std::endl;
+        }
+
+    private:
+
+    };
+
+
+    class PlayerOnHurtScript : public IScript {
+    public:
+        PlayerOnHurtScript() = default;
+        ~PlayerOnHurtScript() = default;
+
+        void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
+            std::cout << "ow me player me hurt!" << std::endl;
+        }
+
+    private:
 
     };
 }
@@ -282,7 +318,7 @@ namespace prefab {
         attack.groundAttackStartup = 3;
         attack.groundAttackDuration = 4;
         attack.groundAttackCooldown = 4;
-        attack.groundAttackForce = {40.f, 0.f};
+        attack.groundAttackForce = {20.f, 0.f};
         attack.groundAttackKnockback = {50.f, -20.f};
         attack.airAttackStartup = 3;
         attack.airAttackDuration = 10;
@@ -291,9 +327,18 @@ namespace prefab {
         attack.airAttackKnockback = 50.f;
         ecs.emplace<AttackComponent>(player, attack);
 
-        ecs.emplace<HitboxComponent>(player, HitboxComponent{{}, 1});
+        HitboxComponent hitboxComp;
+        hitboxComp.damage = 1;
+        hitboxComp.onHitScript = std::make_shared<PlayerOnHitScript>();
+        ecs.emplace<HitboxComponent>(player, hitboxComp);
 
-        ecs.emplace<HurtboxComponent>(player, HurtboxComponent{{0, 0, 24, 32}, {0.f, 0.f}, 2000, 2000});
+        HurtboxComponent hurtboxComp;
+        hurtboxComp.bounds = {0, 0, 24, 32};
+        hurtboxComp.offset = {0.f, 0.f};
+        hurtboxComp.onHurtScript = std::make_shared<PlayerOnHurtScript>();
+        hurtboxComp.invulnTime = 2000;
+        hurtboxComp.invulnCount = 2000;
+        ecs.emplace<HurtboxComponent>(player, hurtboxComp);
 
         ecs.emplace<HitstopComponent>(player, HitstopComponent{200});
 
