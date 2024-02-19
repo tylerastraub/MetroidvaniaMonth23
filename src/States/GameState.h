@@ -12,6 +12,7 @@
 #include "CollisionSystem.h"
 #include "ScriptSystem.h"
 #include "CameraSystem.h"
+#include "HitSystem.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -47,5 +48,6 @@ private:
     CollisionSystem _collisionSystem;
     ScriptSystem _scriptSystem;
     CameraSystem _cameraSystem;
+    HitSystem _hitSystem;
 
 };

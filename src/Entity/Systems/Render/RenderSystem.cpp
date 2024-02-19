@@ -1,11 +1,12 @@
 #include "RenderSystem.h"
+#include "rect2.h"
 #include "RenderComponent.h"
 #include "TransformComponent.h"
 #include "SpritesheetPropertiesComponent.h"
 #include "DirectionComponent.h"
 #include "StateComponent.h"
 #include "AnimationComponent.h"
-#include "rect2.h"
+#include "HurtboxComponent.h"
 
 void RenderSystem::update(entt::registry& ecs, float timescale) {
     auto entities = ecs.view<AnimationComponent>();
@@ -19,6 +20,12 @@ void RenderSystem::render(SDL_Renderer* renderer, entt::registry& ecs, strb::vec
     auto entities = ecs.view<RenderComponent, TransformComponent>();
     SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0xFF, 0xFF);
     for(auto ent : entities) {
+        if(ecs.all_of<HurtboxComponent>(ent)) {
+            auto hurtbox = ecs.get<HurtboxComponent>(ent);
+            if(hurtbox.invulnCount < hurtbox.invulnTime && hurtbox.invulnCount % 3 != 0 && hurtbox.invulnTime > 100) {
+                continue;
+            }
+        }
         auto& renderComponent = ecs.get<RenderComponent>(ent);
         auto& transform = ecs.get<TransformComponent>(ent);
         renderComponent.renderQuad.x = transform.position.x + renderComponent.renderQuadOffset.x;

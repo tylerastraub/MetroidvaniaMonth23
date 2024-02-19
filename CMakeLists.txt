@@ -45,6 +45,7 @@ set(SOURCE_INCLUDES
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Player
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers
+    ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Combat
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Generic
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Input
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Physics
@@ -75,6 +76,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Player/Player.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers/DialogueTrigger.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers/PrefabSpawnTrigger.cpp
+    ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Combat/HitSystem.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Generic/ScriptSystem.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Input/InputSystem.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Physics/CollisionSystem.cpp

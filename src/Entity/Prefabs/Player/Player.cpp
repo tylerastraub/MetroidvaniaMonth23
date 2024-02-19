@@ -14,6 +14,7 @@
 #include "DirectionComponent.h"
 #include "HitboxComponent.h"
 #include "HurtboxComponent.h"
+#include "HitstopComponent.h"
 
 namespace {
     class PlayerScript : public IScript {
@@ -199,6 +200,7 @@ namespace {
                         groundAttackHitbox.offset = {-32.f, -8.f};
                     }
                     hitbox.hitboxes.push_back(groundAttackHitbox);
+                    hitbox.selfKnockback = {20.f, 0.f};
                 }
                 else if(attack.attackTimer >= attack.groundAttackStartup + attack.groundAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -213,6 +215,7 @@ namespace {
                     airAttackHitbox.bounds = {0.f, 0.f, 48.f, 48.f};
                     airAttackHitbox.offset = {-12.f, -8.f};
                     hitbox.hitboxes.push_back(airAttackHitbox);
+                    hitbox.selfKnockback = {0.f, 0.f};
                 }
                 else if(attack.attackTimer >= attack.airAttackStartup + attack.airAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
@@ -288,9 +291,11 @@ namespace prefab {
         attack.airAttackKnockback = 50.f;
         ecs.emplace<AttackComponent>(player, attack);
 
-        ecs.emplace<HitboxComponent>(player, HitboxComponent{});
+        ecs.emplace<HitboxComponent>(player, HitboxComponent{{}, 1});
 
-        ecs.emplace<HurtboxComponent>(player, HurtboxComponent{{0, 0, 24, 32}});
+        ecs.emplace<HurtboxComponent>(player, HurtboxComponent{{0, 0, 24, 32}, {0.f, 0.f}, 2000, 2000});
+
+        ecs.emplace<HitstopComponent>(player, HitstopComponent{200});
 
         return player;
     }

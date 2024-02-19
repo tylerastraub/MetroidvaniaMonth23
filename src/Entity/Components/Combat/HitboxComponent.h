@@ -12,4 +12,7 @@ struct Hitbox {
 
 struct HitboxComponent {
     std::vector<Hitbox> hitboxes = {};
+    int damage = 0;
+    int hitstun = 0;
+    strb::vec2f selfKnockback = {0.f, 0.f};
 };

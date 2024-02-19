@@ -41,6 +41,9 @@ void GameState::tick(float timescale) {
     _physicsSystem.updateY(_ecs, timescale);
     _collisionSystem.updateLevelCollisionsOnYAxis(_ecs, _level);
     _collisionSystem.checkForCrouchCollision(_ecs, _level);
+
+    _hitSystem.update(_ecs, timescale);
+    _hitSystem.checkForHitboxCollisions(_ecs);
     
     _cameraSystem.update(_ecs, timescale);
     _renderOffset = _cameraSystem.getCurrentCameraOffset();
