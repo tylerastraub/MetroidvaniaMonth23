@@ -13,8 +13,6 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 /**
  * TODO:
- * - Make hitboxes only able to attack hurtboxes once
- * - Make player ignore friction on enemy hit for set duration (ON_HIT_FORCE_DURATION)
  * - Finish basic enemy
  * - ART!!!! Start player art!!! I'm serious!!!!!!
  * - Add room loading/transitions

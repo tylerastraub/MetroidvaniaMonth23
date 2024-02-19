@@ -199,6 +199,7 @@ namespace {
                     // ???
                 }
                 else if(attack.attackTimer < attack.groundAttackStartup + attack.groundAttackDuration) {
+                    hitbox.hitboxes.clear();
                     Hitbox groundAttackHitbox;
                     groundAttackHitbox.bounds = {0.f, 0.f, 32.f, 40.f};
                     if(dir.direction == Direction::EAST) {
@@ -213,6 +214,7 @@ namespace {
                 }
                 else if(attack.attackTimer >= attack.groundAttackStartup + attack.groundAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
+                    if(hitbox.hits.size()) hitbox.hits.clear();
                 }
             }
             else {
@@ -220,6 +222,7 @@ namespace {
                     // ???
                 }
                 else if(attack.attackTimer < attack.airAttackStartup + attack.airAttackDuration) {
+                    hitbox.hitboxes.clear();
                     Hitbox airAttackHitbox;
                     airAttackHitbox.bounds = {0.f, 0.f, 64.f, 64.f};
                     airAttackHitbox.offset = {-20.f, -16.f};
@@ -229,17 +232,22 @@ namespace {
                 }
                 else if(attack.attackTimer >= attack.airAttackStartup + attack.airAttackDuration) {
                     if(hitbox.hitboxes.size()) hitbox.hitboxes.clear();
+                    if(hitbox.hits.size()) hitbox.hits.clear();
                 }
             }
 
             // ==================== TIMER AND COMPONENT UPDATES ====================
-            if(physics.offWallCount < physics.wallJumpTime || hurtbox.invulnCount < ON_HURT_KNOCKBACK_DURATION) {
+            if(physics.offWallCount < physics.wallJumpTime ||
+               hurtbox.invulnCount < ON_HURT_KNOCKBACK_DURATION ||
+               hitbox.doubleHitTimer < ON_HIT_FORCE_DURATION) {
                 physics.ignoreFriction = true;
             }
             else {
                 physics.ignoreFriction = false;
             }
             if(hitstop.hitstopCount >= hitstop.hitstopCountLimit) ++attack.attackTimer;
+            float coefficient = (dir.direction == Direction::EAST) ? -1.f : 1.f;
+            if(hitbox.doubleHitTimer < ON_HIT_FORCE_DURATION) physics.velocity.x += (ON_HIT_FORCE_DURATION / (hitbox.doubleHitTimer + 1) * coefficient);
         }
 
     private:
@@ -247,7 +255,7 @@ namespace {
             return std::find(allowedInputs.begin(), allowedInputs.end(), input) != allowedInputs.end();
         }
         
-        const int ON_HIT_FORCE_DURATION = 200; // on hitting something, how many ticks do we get knocked back for?
+        const int ON_HIT_FORCE_DURATION = 100; // on hitting something, how many ticks do we get knocked back for?
         const int ON_HURT_KNOCKBACK_DURATION = 500; // when hit, how many ms do we fly away without slowing down?
 
     };
@@ -335,6 +343,8 @@ namespace prefab {
         HitboxComponent hitboxComp;
         hitboxComp.damage = 1;
         hitboxComp.onHitScript = std::make_shared<PlayerOnHitScript>();
+        hitboxComp.doubleHitTimerLimit = 1000;
+        hitboxComp.doubleHitTimer = 1000;
         ecs.emplace<HitboxComponent>(player, hitboxComp);
 
         HurtboxComponent hurtboxComp;

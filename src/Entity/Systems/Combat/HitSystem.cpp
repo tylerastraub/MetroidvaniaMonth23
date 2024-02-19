@@ -17,15 +17,22 @@ void HitSystem::update(entt::registry& ecs, float timescale) {
         hitstopComp.hitstopCount += timescale * 1000.f;
         if(hitstopComp.hitstopCount > hitstopComp.hitstopCountLimit) hitstopComp.hitstopCountLimit = 0;
     }
-    // hitbox pos update
+    // hitbox update
     for(auto ent : hitboxView) {
         auto& hitboxComp = ecs.get<HitboxComponent>(ent);
         auto& hitboxes = hitboxComp.hitboxes;
-        if(hitboxes.empty()) continue;
         auto pos = ecs.get<TransformComponent>(ent).position;
         for(auto& hitbox : hitboxes) {
             hitbox.bounds.x = pos.x + hitbox.offset.x;
             hitbox.bounds.y = pos.y + hitbox.offset.y;
+        }
+        if(ecs.all_of<HitstopComponent>(ent)) {
+            auto hitstopComp = ecs.get<HitstopComponent>(ent);
+            if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
+        }
+        hitboxComp.doubleHitTimer += timescale * 1000.f;
+        if(hitboxComp.doubleHitTimer > hitboxComp.doubleHitTimerLimit && hitboxComp.hits.size()) {
+            hitboxComp.hits.clear();
         }
     }
     // hurtbox pos update
@@ -65,10 +72,14 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
             if(attacker == defender) continue;
             auto& hurtboxComp = ecs.get<HurtboxComponent>(defender);
             if(hurtboxComp.invulnCount < hurtboxComp.invulnTime) continue;
+            // make sure we aren't double hitting entities
+            if(std::find(hitboxComp.hits.begin(), hitboxComp.hits.end(), defender) != hitboxComp.hits.end()) continue;
             // actual hit check
             for(auto hitbox : hitboxes) {
                 if(RectUtils::isIntersecting(hitbox.bounds, hurtboxComp.bounds)) {
                     // we have a hit!
+                    hitboxComp.hits.push_back(defender);
+                    hitboxComp.doubleHitTimer = 0;
                     hurtboxComp.invulnCount = 0;
                     hurtboxComp.hitstunCount = 0;
                     hurtboxComp.hitstunTime = hitboxComp.hitstun;
