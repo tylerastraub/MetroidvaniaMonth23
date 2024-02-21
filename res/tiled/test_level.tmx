@@ -48,7 +48,7 @@
    </properties>
    <point/>
   </object>
-  <object id="26" name="rockling" x="480" y="160">
+  <object id="26" name="rockling" x="272" y="112">
    <point/>
   </object>
   <object id="28" name="trigger" type="levelLoad" x="624" y="336" width="16" height="48">
@@ -80,9 +80,9 @@
   <object id="18" type="solid" x="400" y="256" width="64" height="32"/>
   <object id="19" type="solid" x="400" y="352" width="64" height="32"/>
   <object id="20" type="solid" x="560" y="384" width="80" height="64"/>
-  <object id="21" type="solid" x="64" y="384" width="64" height="16"/>
-  <object id="22" type="solid" x="176" y="320" width="64" height="16"/>
-  <object id="23" type="solid" x="80" y="256" width="32" height="16"/>
+  <object id="21" type="platform" x="64" y="384" width="64" height="16"/>
+  <object id="22" type="platform" x="176" y="320" width="64" height="16"/>
+  <object id="23" type="platform" x="80" y="256" width="32" height="16"/>
   <object id="25" type="solid" x="432" y="384" width="32" height="48"/>
   <object id="30" type="solid" x="576" y="192" width="48" height="144"/>
  </objectgroup>

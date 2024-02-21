@@ -18,7 +18,6 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  * TODO:
  * - Start player art
  * - Start tileset art
- * - Finish basic enemy
  * - Add cameraPosTrigger that locks camera goal onto point if player is in trigger
  * - Add doors with keys/locks
  * - Add more enemies

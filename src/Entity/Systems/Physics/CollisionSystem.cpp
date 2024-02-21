@@ -108,6 +108,8 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
         std::vector<strb::vec2i> tileCollisions;
         if(physics.velocity.y < 0) {
             collision.collidingDown = false;
+            collision.onLeftEdge = false;
+            collision.onRightEdge = false;
             physics.wallSliding = false;
             // get all tiles above us
             for(int x = topLeftTile.x; x <= bottomRightTile.x; ++x) {
@@ -156,16 +158,21 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 physics.wallJumping = false;
                 physics.wallSliding = false;
                 collision.onPlatform = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::PLATFORM);
+                checkIfOnEdge(ecs, entity, level);
             }
             else {
                 collision.collidingDown = false;
                 physics.touchingGround = false;
                 collision.onPlatform = false;
+                collision.onLeftEdge = false;
+                collision.onRightEdge = false;
             }
         }
         else {
             collision.collidingUp = false;
             collision.collidingDown = false;
+            collision.onLeftEdge = false;
+            collision.onRightEdge = false;
         }
     }
 }
@@ -214,4 +221,38 @@ std::vector<entt::entity> CollisionSystem::checkForPlayerAndTriggerCollisions(en
     }
 
     return result;
+}
+
+void CollisionSystem::checkIfOnEdge(entt::registry& ecs, entt::entity entity, Level level) {
+    auto& collision = ecs.get<CollisionComponent>(entity);
+    auto physics = ecs.get<PhysicsComponent>(entity);
+    if(!physics.touchingGround) {
+        collision.onLeftEdge = false;
+        collision.onRightEdge = false;
+    }
+    else {
+        int tileSize = level.getTileSize();
+        strb::vec2i bottomLeftTileCoord;
+        bottomLeftTileCoord.x = (collision.collisionRect.x - 1) / tileSize;
+        bottomLeftTileCoord.y = (collision.collisionRect.y + collision.collisionRect.h) / tileSize;
+        if(bottomLeftTileCoord.x < 0 || bottomLeftTileCoord.x >= level.getTilemapWidth() ||
+           bottomLeftTileCoord.y < 0 || bottomLeftTileCoord.y >= level.getTilemapHeight()) {
+            collision.onLeftEdge = false;
+        }
+        else {
+            TileType tileType = level.getTileAt(bottomLeftTileCoord.x, bottomLeftTileCoord.y).type;
+            collision.onLeftEdge = (tileType == TileType::NOVAL || tileType == TileType::HAZARD);
+        }
+        SDL_Point bottomRightTileCoord;
+        bottomRightTileCoord.x = (collision.collisionRect.x + collision.collisionRect.w) / tileSize;
+        bottomRightTileCoord.y = (collision.collisionRect.y + collision.collisionRect.h) / tileSize;
+        if(bottomRightTileCoord.x < 0 || bottomRightTileCoord.x >= level.getTilemapWidth() ||
+           bottomRightTileCoord.y < 0 || bottomRightTileCoord.y >= level.getTilemapHeight()) {
+            collision.onRightEdge = false;
+        }
+        else {
+            TileType tileType = level.getTileAt(bottomRightTileCoord.x, bottomRightTileCoord.y).type;
+            collision.onRightEdge = (tileType == TileType::NOVAL || tileType == TileType::HAZARD);
+        }
+    }
 }

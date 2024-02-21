@@ -10,26 +10,26 @@
     "fileStates": {
         "test_level.tmx": {
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 3,
-            "selectedLayer": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 351.3333333333333,
-                "y": 181.99999999999997
+                "x": 331.3333333333333,
+                "y": 239.83333333333331
             }
         },
         "test_level2.tmx": {
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 3,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 233.66666666666666,
-                "y": 149.33333333333331
+                "x": 240,
+                "y": 159.83333333333331
             }
         },
         "test_map.tmx": {
@@ -53,12 +53,14 @@
     "map.width": 30,
     "openFiles": [
         "tileset_default.tsx",
-        "test_level.tmx"
+        "test_level.tmx",
+        "test_level2.tmx"
     ],
     "project": "mvm23.tiled-project",
     "property.type": "int",
     "recentFiles": [
         "tileset_default.tsx",
+        "test_level2.tmx",
         "test_level.tmx",
         "test_map.tmx"
     ],

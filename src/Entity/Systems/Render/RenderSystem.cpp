@@ -35,7 +35,7 @@ void RenderSystem::render(SDL_Renderer* renderer, entt::registry& ecs, strb::vec
     for(auto ent : entities) {
         if(ecs.all_of<HurtboxComponent>(ent)) {
             auto hurtbox = ecs.get<HurtboxComponent>(ent);
-            if(hurtbox.invulnCount < hurtbox.invulnTime && hurtbox.invulnCount % 3 != 0 && hurtbox.invulnTime > 100) {
+            if(hurtbox.invulnCount < hurtbox.invulnTime && hurtbox.invulnCount % 3 != 0) {
                 continue;
             }
         }

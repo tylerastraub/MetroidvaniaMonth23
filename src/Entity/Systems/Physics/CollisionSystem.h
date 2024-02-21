@@ -16,6 +16,7 @@ public:
 
     void checkForCrouchCollision(entt::registry& ecs, Level level);
     std::vector<entt::entity> checkForPlayerAndTriggerCollisions(entt::registry& ecs);
+    void checkIfOnEdge(entt::registry& ecs, entt::entity entity, Level level);
 
 private:
 
