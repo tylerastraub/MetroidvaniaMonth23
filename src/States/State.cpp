@@ -39,6 +39,10 @@ void State::setInput(std::shared_ptr<Keyboard> keyboard, std::shared_ptr<Mouse> 
     _controller = controller;
 }
 
+void State::setProperty(std::string property, std::string value) {
+    _properties[property] = value;
+}
+
 strb::vec2i State::getGameSize() {
     return _gameSize;
 }
@@ -81,4 +85,8 @@ std::shared_ptr<Mouse> State::getMouse() {
 
 std::shared_ptr<Controller> State::getController() {
     return _controller;
+}
+
+std::string State::getProperty(std::string property) {
+    return _properties[property];
 }

@@ -112,6 +112,9 @@ bool Game::init() {
                         }
                         _currentState->setAudioPlayer(_audioPlayer);
                         _currentState->setSettings(_settings);
+                        _currentState->setProperty("levelPath", "res/tiled/test_level.tmx");
+                        _currentState->setProperty("playerSpawnID", "0");
+                        _currentState->setProperty("debug", "0");
                         _currentState->init();
                         SDL_ShowCursor(SDL_DISABLE);
                         windowCreatedSuccessfully = true;
@@ -173,7 +176,7 @@ void Game::startGameLoop() {
     Uint32 frames = 0;
     Uint32 ticks = 0;
     float frameWait = 1.f / 50.f;
-    float frameRemainder = 0.f;
+    _currentState->tick(frameWait); // hack haha lolz
     while(_exitFlag == false) {
         // Event Handling
         while(SDL_PollEvent(&e) != 0) {
@@ -221,6 +224,7 @@ void Game::startGameLoop() {
             _currentState->setAudioPlayer(_audioPlayer);
             _currentState->setSettings(_settings);
             _currentState->init();
+            _currentState->tick(frameWait); // hack pt2 haha lolz pt2
         }
 
         // Settings changed
@@ -247,8 +251,6 @@ void Game::startGameLoop() {
 
         dTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime);
         if(dTime.count() / (ticks + 1) >= frameWait * 1000.f) {
-            // frameRemainder += std::abs(frameWait * 1000.f - std::ceil(frameWait * 1000.f));
-            // if(frameRemainder > 1.f) frameRemainder = 0.f;
             _currentState->tick(frameWait);
             ticks++;
         }

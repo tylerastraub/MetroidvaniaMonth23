@@ -2,10 +2,13 @@
 #include "RandomGen.h"
 #include "LevelParser.h"
 #include "Player.h"
+// Components
 #include "CollisionComponent.h"
 #include "HitboxComponent.h"
 #include "HurtboxComponent.h"
 #include "TransformComponent.h"
+#include "TriggerComponent.h"
+#include "LevelLoadTriggerComponent.h"
 
 #include <chrono>
 
@@ -13,16 +16,19 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 /**
  * TODO:
+ * - Start player art
+ * - Start tileset art
  * - Finish basic enemy
- * - ART!!!! Start player art!!! I'm serious!!!!!!
- * - Add room loading/transitions
- * - Add support for camera locking onto singular room (or onto singular non-entity point)
+ * - Add cameraPosTrigger that locks camera goal onto point if player is in trigger
  * - Add doors with keys/locks
  * - Add more enemies
+ * - Add TileType::CLIP that functions same as solid except it does not trigger "colliding" bools in CollisionComponent
+ * - Add map (prefably a live one)
 */
 
 bool GameState::init() {
-    _level = LevelParser::parseLevelFromTmx(_ecs, "res/tiled/test_level.tmx", SpritesheetID::TILESET_DEFAULT);
+    _level = LevelParser::parseLevelFromTmx(_ecs, getProperty("levelPath"), SpritesheetID::TILESET_DEFAULT, std::stoi(getProperty("playerSpawnID")));
+    _debug = std::stoi(getProperty("debug"));
     _player = _level.getPlayerId();
     
     initSystems();
@@ -44,6 +50,9 @@ void GameState::tick(float timescale) {
 
     _hitSystem.update(_ecs, timescale);
     _hitSystem.checkForHitboxCollisions(_ecs, timescale, getAudioPlayer());
+
+    std::vector<entt::entity> triggers = _collisionSystem.checkForPlayerAndTriggerCollisions(_ecs);
+    if(triggers.size()) processTriggers(triggers, timescale);
     
     _cameraSystem.update(_ecs, timescale);
     _renderOffset = _cameraSystem.getCurrentCameraOffset();
@@ -118,8 +127,41 @@ void GameState::initSystems() {
 
     _cameraSystem.setCameraGoal(_player);
     _cameraSystem.setGameSize(getGameSize());
-    _cameraSystem.setLevelSize({
-        _level.getTilemapWidth() * _level.getTileSize(),
-        _level.getTilemapHeight() * _level.getTileSize()
+    _cameraSystem.setCameraBounds({
+        std::stof(_level.getProperty("cameraBoundsX")),
+        std::stof(_level.getProperty("cameraBoundsY")),
+        std::stof(_level.getProperty("cameraBoundsW")),
+        std::stof(_level.getProperty("cameraBoundsH"))
     });
+    _renderSystem.update(_ecs, 0.f); // just to get player quad aligned
+    _cameraSystem.update(_ecs, 0.f);
+    _cameraSystem.alignCameraOffsetWithGoal();
+}
+
+void GameState::processTriggers(std::vector<entt::entity> triggers, float timescale) {
+    std::vector<entt::entity> destroyedTriggers;
+    for(auto trigger : triggers) {
+        auto triggerComp = _ecs.get<TriggerComponent>(trigger);
+        switch(triggerComp.type) {
+            case TriggerType::LEVEL_LOAD: {
+                auto levelLoadComp = _ecs.get<LevelLoadTriggerComponent>(trigger);
+                GameState* gs = new GameState();
+                gs->setProperty("levelPath", levelLoadComp.levelPath);
+                gs->setProperty("playerSpawnID", std::to_string(levelLoadComp.playerSpawnID));
+                gs->setProperty("debug", std::to_string(_debug));
+                /// TODO: add properties here corresponding to player progress/state
+                // alternatively, just save progress here then load progress in new GameState
+                setNextState(gs);
+                break;
+            }
+            default:
+                break;
+        }
+        if(triggerComp.onTriggerScript) triggerComp.onTriggerScript->update(_ecs, trigger, timescale, getAudioPlayer());
+        if(triggerComp.triggerOnce) destroyedTriggers.push_back(trigger);
+    }
+
+    for(auto trigger : destroyedTriggers) {
+        _ecs.destroy(trigger);
+    }
 }

@@ -45,6 +45,7 @@ public:
     void setSettings(std::shared_ptr<Settings> settings);
     void completeSettingsChange();
     void setInput(std::shared_ptr<Keyboard> keyboard, std::shared_ptr<Mouse> mouse, std::shared_ptr<Controller> controller);
+    void setProperty(std::string property, std::string value);
     
     strb::vec2i getGameSize();
     State* getNextState();
@@ -57,6 +58,7 @@ public:
     std::shared_ptr<Keyboard> getKeyboard();
     std::shared_ptr<Mouse> getMouse();
     std::shared_ptr<Controller> getController();
+    std::string getProperty(std::string property);
 
 protected:
     bool _settingsChanged = false;
@@ -72,4 +74,6 @@ private:
     std::shared_ptr<Keyboard> _keyboard = nullptr;
     std::shared_ptr<Mouse> _mouse = nullptr;
     std::shared_ptr<Controller> _controller = nullptr;
+
+    std::unordered_map<std::string, std::string> _properties;
 };

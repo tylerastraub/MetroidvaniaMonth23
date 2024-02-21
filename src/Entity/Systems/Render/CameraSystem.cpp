@@ -10,17 +10,17 @@ void CameraSystem::update(entt::registry& ecs, float timescale) {
     }
         
     // keep camera goal in bounds (and allow smooth movement when at level borders)
-    if(_goalCameraOffset.x < 0) {
-        _goalCameraOffset.x = 0;
+    if(_goalCameraOffset.x < _cameraBounds.x) {
+        _goalCameraOffset.x = _cameraBounds.x;
     }
-    else if(_goalCameraOffset.x > _levelSize.x - _gameSize.x) {
-        _goalCameraOffset.x = _levelSize.x - _gameSize.x;
+    else if(_goalCameraOffset.x > _cameraBounds.x + _cameraBounds.w - _gameSize.x) {
+        _goalCameraOffset.x = _cameraBounds.x + _cameraBounds.w - _gameSize.x;
     }
-    if(_goalCameraOffset.y < 0) {
-        _goalCameraOffset.y = 0;
+    if(_goalCameraOffset.y < _cameraBounds.y) {
+        _goalCameraOffset.y = _cameraBounds.y;
     }
-    else if(_goalCameraOffset.y > _levelSize.y - _gameSize.y) {
-        _goalCameraOffset.y = _levelSize.y - _gameSize.y;
+    else if(_goalCameraOffset.y > _cameraBounds.y + _cameraBounds.h - _gameSize.y) {
+        _goalCameraOffset.y = _cameraBounds.y + _cameraBounds.h - _gameSize.y;
     }
 
     float xOffsetDiff = _goalCameraOffset.x - _currentCameraOffset.x;
@@ -28,6 +28,10 @@ void CameraSystem::update(entt::registry& ecs, float timescale) {
     
     _currentCameraOffset.x = ((1 - _cameraSpeed) * _currentCameraOffset.x) + (_cameraSpeed * _goalCameraOffset.x);
     _currentCameraOffset.y = (0.9f * _currentCameraOffset.y) + (0.1f * _goalCameraOffset.y);
+}
+
+void CameraSystem::alignCameraOffsetWithGoal() {
+    _currentCameraOffset = _goalCameraOffset;
 }
 
 void CameraSystem::setCameraGoal(entt::entity goalEntity) {
@@ -46,8 +50,8 @@ void CameraSystem::setGameSize(strb::vec2i gameSize) {
     _gameSize = gameSize;
 }
 
-void CameraSystem::setLevelSize(strb::vec2i levelSize) {
-    _levelSize = levelSize;
+void CameraSystem::setCameraBounds(strb::rect2f cameraBounds) {
+    _cameraBounds = cameraBounds;
 }
 
 void CameraSystem::setCameraSpeed(float cameraSpeed) {
@@ -60,10 +64,10 @@ strb::vec2f CameraSystem::getCurrentCameraOffset() {
 
 bool CameraSystem::atXEdge() {
     return _goalCameraOffset.x <= 0 ||
-        _goalCameraOffset.x >= _levelSize.x - _gameSize.x;
+        _goalCameraOffset.x >= _cameraBounds.x + _cameraBounds.w - _gameSize.x;
 }
 
 bool CameraSystem::atYEdge() {
     return _goalCameraOffset.y <= 0 ||
-        _goalCameraOffset.y >= _levelSize.y - _gameSize.y;
+        _goalCameraOffset.y >= _cameraBounds.y + _cameraBounds.h - _gameSize.y;
 }

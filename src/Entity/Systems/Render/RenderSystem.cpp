@@ -10,14 +10,22 @@
 #include "HitstopComponent.h"
 
 void RenderSystem::update(entt::registry& ecs, float timescale) {
-    auto entities = ecs.view<AnimationComponent>();
-    for(auto ent : entities) {
+    auto animationView = ecs.view<AnimationComponent>();
+    for(auto ent : animationView) {
         if(ecs.all_of<HitstopComponent>(ent)) {
             auto hitstopComp = ecs.get<HitstopComponent>(ent);
             if(hitstopComp.hitstopCount < hitstopComp.hitstopCountLimit) continue;
         }
         auto& animationComponent = ecs.get<AnimationComponent>(ent);
         animationComponent.msSinceAnimationStart += timescale * 1000.f;
+    }
+    auto renderView = ecs.view<RenderComponent>();
+    for(auto ent : renderView) {
+        // update render quad pos
+        auto& transform = ecs.get<TransformComponent>(ent);
+        auto& renderComponent = ecs.get<RenderComponent>(ent);
+        renderComponent.renderQuad.x = transform.position.x + renderComponent.renderQuadOffset.x;
+        renderComponent.renderQuad.y = transform.position.y + renderComponent.renderQuadOffset.y;
     }
 }
 
@@ -32,9 +40,6 @@ void RenderSystem::render(SDL_Renderer* renderer, entt::registry& ecs, strb::vec
             }
         }
         auto& renderComponent = ecs.get<RenderComponent>(ent);
-        auto& transform = ecs.get<TransformComponent>(ent);
-        renderComponent.renderQuad.x = transform.position.x + renderComponent.renderQuadOffset.x;
-        renderComponent.renderQuad.y = transform.position.y + renderComponent.renderQuadOffset.y;
         SDL_FRect quad = {
             renderComponent.renderQuad.x,
             renderComponent.renderQuad.y,

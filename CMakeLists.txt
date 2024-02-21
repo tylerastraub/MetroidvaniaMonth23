@@ -77,6 +77,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Enemies/Rockling.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Player/Player.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers/DialogueTrigger.cpp
+    ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers/LevelLoadTrigger.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Triggers/PrefabSpawnTrigger.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Combat/HitSystem.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Systems/Generic/ScriptSystem.cpp

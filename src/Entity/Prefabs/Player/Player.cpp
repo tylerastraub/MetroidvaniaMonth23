@@ -52,11 +52,13 @@ namespace {
             // ==================== SET ALLOWED INPUTS ====================
             input.allowedInputs = {};
             if(canAct) {
-                if(powerup.moveLeft) {
-                    input.allowedInputs.push_back(InputEvent::LEFT);
-                }
-                if(powerup.moveRight) {
-                    input.allowedInputs.push_back(InputEvent::RIGHT);
+                if(!(physics.touchingGround && hitbox.doubleHitTimer < ON_HIT_FORCE_DURATION)) {
+                    if(powerup.moveLeft) {
+                        input.allowedInputs.push_back(InputEvent::LEFT);
+                    }
+                    if(powerup.moveRight) {
+                        input.allowedInputs.push_back(InputEvent::RIGHT);
+                    }
                 }
                 if((physics.offGroundCount < physics.coyoteTime && powerup.jump) ||
                    physics.wallSliding && powerup.walljump) {
@@ -247,7 +249,7 @@ namespace {
             }
             if(hitstop.hitstopCount >= hitstop.hitstopCountLimit) ++attack.attackTimer;
             float coefficient = (dir.direction == Direction::EAST) ? -1.f : 1.f;
-            if(hitbox.doubleHitTimer < ON_HIT_FORCE_DURATION) physics.velocity.x += (ON_HIT_FORCE_DURATION / (hitbox.doubleHitTimer + 1) * coefficient);
+            if(hitbox.doubleHitTimer < ON_HIT_FORCE_DURATION && physics.touchingGround) physics.velocity.x += (ON_HIT_FORCE_DURATION / (hitbox.doubleHitTimer + 1) * coefficient);
         }
 
     private:
@@ -255,7 +257,7 @@ namespace {
             return std::find(allowedInputs.begin(), allowedInputs.end(), input) != allowedInputs.end();
         }
         
-        const int ON_HIT_FORCE_DURATION = 100; // on hitting something, how many ticks do we get knocked back for?
+        const int ON_HIT_FORCE_DURATION = 60; // on hitting something, how many ticks do we get knocked back for?
         const int ON_HURT_KNOCKBACK_DURATION = 500; // when hit, how many ms do we fly away without slowing down?
 
     };

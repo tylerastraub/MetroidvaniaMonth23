@@ -1,8 +1,13 @@
 #include "CollisionSystem.h"
+#include "RectUtils.h"
+// Components
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
 #include "CollisionComponent.h"
 #include "CrouchComponent.h"
+#include "TriggerComponent.h"
+#include "LevelLoadTriggerComponent.h"
+#include "PlayerComponent.h"
 
 void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level level) {
     auto view = ecs.view<TransformComponent, CollisionComponent, PhysicsComponent>();
@@ -191,4 +196,22 @@ void CollisionSystem::checkForCrouchCollision(entt::registry& ecs, Level level) 
             }
         }
     }
+}
+
+std::vector<entt::entity> CollisionSystem::checkForPlayerAndTriggerCollisions(entt::registry& ecs) {
+    std::vector<entt::entity> result;
+    auto view = ecs.view<TriggerComponent>();
+    entt::entity player = *ecs.view<PlayerComponent>().begin();
+    auto physics = ecs.get<PhysicsComponent>(player);
+    auto pCollision = ecs.get<CollisionComponent>(player).collisionRect;
+    for(auto trigger : view) {
+        auto triggerComp = ecs.get<TriggerComponent>(trigger);
+        auto tCollision = ecs.get<CollisionComponent>(trigger).collisionRect;
+        if(triggerComp.entityMustBeGrounded && !physics.touchingGround) continue;
+        if(RectUtils::isIntersecting(tCollision, pCollision)) {
+            result.push_back(trigger);
+        }
+    }
+
+    return result;
 }

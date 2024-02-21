@@ -15,6 +15,7 @@ public:
     void updateLevelCollisionsOnYAxis(entt::registry& ecs, Level level);
 
     void checkForCrouchCollision(entt::registry& ecs, Level level);
+    std::vector<entt::entity> checkForPlayerAndTriggerCollisions(entt::registry& ecs);
 
 private:
 

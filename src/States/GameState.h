@@ -32,6 +32,8 @@ public:
     void initSystems();
 
 private:
+    void processTriggers(std::vector<entt::entity> triggers, float timescale);
+
     strb::vec2f _renderOffset = {0.f, 0.f};
 
     bool _debug = false;

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <memory>
 #include <entt/entity/registry.hpp>
+#include <unordered_map>
 
 class Level {
 public:
@@ -23,6 +24,7 @@ public:
     void setTileAt(int x, int y, Tile tile);
     void setTileset(Spritesheet* tileset);
     void setPlayerId(entt::entity player);
+    void setProperty(std::string property, std::string value);
 
     Tile getTileAt(int x, int y);
     int getTileSize();
@@ -30,6 +32,7 @@ public:
     int getTilemapHeight();
     entt::entity getPlayerId();
     std::shared_ptr<FloatingPointLightMap> getLightMap();
+    std::string getProperty(std::string property);
 
 private:
     std::shared_ptr<FloatingPointLightMap> _lMap = nullptr;
@@ -38,6 +41,8 @@ private:
     int _tilemapHeight = 0;
     int _tileSize = 16;
     Spritesheet* _tileset = nullptr;
+
+    std::unordered_map<std::string, std::string> _properties;
 
     entt::entity _playerId;
 

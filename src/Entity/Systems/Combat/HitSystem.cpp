@@ -106,9 +106,9 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
                     if(ecs.all_of<PhysicsComponent>(attacker)) {
                         auto& physics = ecs.get<PhysicsComponent>(attacker);
                         if(physics.touchingGround) physics.velocity.x = 0;
-                        physics.velocity.x += hitboxComp.selfKnockback.x;
+                        float coefficient = (attackerCenter < defenderCenter) ? -1.f : 1.f;
+                        physics.velocity.x += hitboxComp.selfKnockback.x * coefficient;
                         physics.velocity.y = hitboxComp.selfKnockback.y;
-                        if(attackerCenter < defenderCenter) physics.velocity.x *= -1.f;
                     }
                     // apply knockback to defender
                     if(ecs.all_of<PhysicsComponent>(defender)) {

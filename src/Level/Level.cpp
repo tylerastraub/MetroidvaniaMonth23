@@ -67,6 +67,10 @@ void Level::setPlayerId(entt::entity player) {
     _playerId = player;
 }
 
+void Level::setProperty(std::string property, std::string value) {
+    _properties[property] = value;
+}
+
 Tile Level::getTileAt(int x, int y) {
     if(x >= 0 && x < _tilemapWidth && y >= 0 && y < _tilemapHeight) {
         return _tilemap[y][x];
@@ -92,4 +96,8 @@ entt::entity Level::getPlayerId() {
 
 std::shared_ptr<FloatingPointLightMap> Level::getLightMap() {
     return _lMap;
+}
+
+std::string Level::getProperty(std::string property) {
+    return _properties[property];
 }

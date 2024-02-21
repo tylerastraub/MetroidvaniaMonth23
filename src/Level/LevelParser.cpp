@@ -5,6 +5,7 @@
 // Prefabs
 #include "DialogueTrigger.h"
 #include "PrefabSpawnTrigger.h"
+#include "LevelLoadTrigger.h"
 #include "Player.h"
 #include "Rockling.h"
 
@@ -16,7 +17,7 @@
 #include <tmxlite/ObjectGroup.hpp>
 #include <entt/entity/registry.hpp>
 
-Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, SpritesheetID spritesheetId) {
+Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, SpritesheetID spritesheetId, int playerSpawnID) {
     Level level;
     level.setTileset(SpritesheetRegistry::getSpritesheet(spritesheetId));
 
@@ -38,9 +39,18 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
 
         // Custom map properties
         for(auto prop : map.getProperties()) {
-            // if(prop.getName() == "propName" && prop.getType() == tmx::Property::Type::String) {
-            //     level.setProperty(prop.getStringValue());
-            // }
+            if(prop.getName() == "cameraBoundsX" && prop.getType() == tmx::Property::Type::Float) {
+                level.setProperty(prop.getName(), std::to_string(prop.getFloatValue()));
+            }
+            else if(prop.getName() == "cameraBoundsY" && prop.getType() == tmx::Property::Type::Float) {
+                level.setProperty(prop.getName(), std::to_string(prop.getFloatValue()));
+            }
+            else if(prop.getName() == "cameraBoundsW" && prop.getType() == tmx::Property::Type::Float) {
+                level.setProperty(prop.getName(), std::to_string(prop.getFloatValue()));
+            }
+            else if(prop.getName() == "cameraBoundsH" && prop.getType() == tmx::Property::Type::Float) {
+                level.setProperty(prop.getName(), std::to_string(prop.getFloatValue()));
+            }
         }
 
         // Map layers
@@ -54,7 +64,12 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                         strb::vec2f objPos = {object.getPosition().x, object.getPosition().y};
                         // ============================== PREFABS ==============================
                         if(object.getName() == "player") {
-                            level.setPlayerId(prefab::Player::create(ecs, objPos));
+                            for(auto prop : object.getProperties()) {
+                                if(prop.getName() == "spawnID" && prop.getType() == tmx::Property::Type::Int) {
+                                    int spawnID = prop.getIntValue();
+                                    if(spawnID == playerSpawnID) level.setPlayerId(prefab::Player::create(ecs, objPos));
+                                }
+                            }
                         }
                         else if(object.getName() == "rockling") {
                             prefab::Rockling::create(ecs, objPos);
@@ -77,7 +92,7 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                         entityMustBeGrounded = prop.getBoolValue();
                                     }
                                 }
-                                entt::entity trigger = prefab::DialogueTrigger::create(
+                                prefab::DialogueTrigger::create(
                                     ecs,
                                     {aabb.left, aabb.top, aabb.width, aabb.height},
                                     triggerOnce,
@@ -112,7 +127,7 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                         prefabValue = prop.getStringValue();
                                     }
                                 }
-                                entt::entity trigger = prefab::PrefabSpawnTrigger::create(
+                                prefab::PrefabSpawnTrigger::create(
                                     ecs,
                                     {aabb.left, aabb.top, aabb.width, aabb.height},
                                     triggerOnce,
@@ -120,6 +135,25 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                     prefabType,
                                     prefabSpawnPos,
                                     prefabValue
+                                );
+                            }
+                            else if(object.getClass() == "levelLoad") {
+                                auto aabb = object.getAABB();
+                                std::string levelPath = "";
+                                int playerSpawnID = -1;
+                                for(auto prop : object.getProperties()) {
+                                    if(prop.getName() == "levelPath" && prop.getType() == tmx::Property::Type::String) {
+                                        levelPath = prop.getStringValue();
+                                    }
+                                    else if(prop.getName() == "playerSpawnID" && prop.getType() == tmx::Property::Type::Int) {
+                                        playerSpawnID = prop.getIntValue();
+                                    }
+                                }
+                                prefab::LevelLoadTrigger::create(
+                                    ecs,
+                                    {aabb.left, aabb.top, aabb.width, aabb.height},
+                                    levelPath,
+                                    playerSpawnID
                                 );
                             }
                         }

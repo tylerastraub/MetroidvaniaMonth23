@@ -13,7 +13,7 @@ public:
     LevelParser() = default;
     ~LevelParser() = default;
 
-    static Level parseLevelFromTmx(entt::registry& ecs, std::string filePath, SpritesheetID spritesheetId);
+    static Level parseLevelFromTmx(entt::registry& ecs, std::string filePath, SpritesheetID spritesheetId, int playerSpawnID = 0);
 
 private:
     static PrefabType convertStringToPrefabType(std::string prefabTypeString);

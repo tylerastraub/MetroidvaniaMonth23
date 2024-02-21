@@ -1,5 +1,6 @@
 #pragma once
 #include "vec2.h"
+#include "rect2.h"
 
 #include <entt/entity/registry.hpp>
 
@@ -9,12 +10,13 @@ public:
     ~CameraSystem() = default;
 
     void update(entt::registry& ecs, float timescale);
+    void alignCameraOffsetWithGoal();
 
     void setCameraGoal(entt::entity goalEntity);
     void setGoalCameraOffset(strb::vec2f goalOffset);
     void setCurrentCameraOffset(strb::vec2f currentOffset);
     void setGameSize(strb::vec2i gameSize);
-    void setLevelSize(strb::vec2i levelSize);
+    void setCameraBounds(strb::rect2f cameraBounds);
     void setCameraSpeed(float cameraSpeed);
 
     strb::vec2f getCurrentCameraOffset();
@@ -39,6 +41,6 @@ private:
     float _cameraSpeed = 0.2f;
 
     strb::vec2i _gameSize = {0, 0}; // The size of the game window in pixels
-    strb::vec2i _levelSize = {0, 0}; // The level size in pixels
+    strb::rect2f _cameraBounds = {0.f, 0.f, 0.f, 0.f};
 
 };
