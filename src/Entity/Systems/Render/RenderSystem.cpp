@@ -63,7 +63,7 @@ void RenderSystem::render(SDL_Renderer* renderer, entt::registry& ecs, strb::vec
                 propsComponent.spritesheet->setIsLooped(props.isLooped);
                 propsComponent.spritesheet->setMsBetweenFrames(props.msBetweenFrames);
                 propsComponent.spritesheet->setNumOfFrames(props.numOfFrames);
-                if(props.isAnimated) {
+                if(ecs.all_of<AnimationComponent>(ent)) {
                     auto& animationComponent = ecs.get<AnimationComponent>(ent);
                     auto& state = ecs.get<StateComponent>(ent);
                     // check for change in y index to restart animation counter
@@ -77,8 +77,11 @@ void RenderSystem::render(SDL_Renderer* renderer, entt::registry& ecs, strb::vec
                         animationComponent.xIndex = animationComponent.msSinceAnimationStart / props.msBetweenFrames;
                         if(animationComponent.xIndex >= props.numOfFrames) animationComponent.xIndex = props.numOfFrames - 1;
                     }
-                    propsComponent.spritesheet->setTileIndex(animationComponent.xIndex, props.yTileIndex);
                     animationComponent.lastState = state.state;
+                }
+                if(props.isAnimated && ecs.all_of<AnimationComponent>(ent)) {
+                    auto& animationComponent = ecs.get<AnimationComponent>(ent);
+                    propsComponent.spritesheet->setTileIndex(animationComponent.xIndex, props.yTileIndex);
                     if(ecs.all_of<StateComponent>(ent) &&
                         ecs.all_of<DirectionComponent>(ent)) {
                         auto& state = ecs.get<StateComponent>(ent).state;

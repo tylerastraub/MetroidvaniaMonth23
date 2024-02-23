@@ -16,13 +16,22 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 
 /**
  * TODO:
- * - Start player art
- * - Start tileset art
+ * ===== ART =====
+ * - Add more player art
+ *     - Ground attack, air attack, crouching, crouch walking, wall sliding, wall jumping, hurt
+ * - Add player particles for attacks
+ * - Add tileset art
+ *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
+ * - Add parallax background
+ * ===== CODE =====
  * - Add cameraPosTrigger that locks camera goal onto point if player is in trigger
  * - Add doors with keys/locks
  * - Add more enemies
  * - Add TileType::CLIP that functions same as solid except it does not trigger "colliding" bools in CollisionComponent
  * - Add map (prefably a live one)
+ * - Add particle system
+ * - Add hazard tile
+ * - Add powerup pickups
 */
 
 bool GameState::init() {
@@ -65,7 +74,7 @@ void GameState::tick(float timescale) {
 
 void GameState::render() {
     // ImGui::Render();
-    SDL_SetRenderDrawColor(getRenderer(), 0x00, 0x00, 0x00, 0xFF);
+    SDL_SetRenderDrawColor(getRenderer(), 0x36, 0xbe, 0xd5, 0xFF);
     SDL_RenderClear(getRenderer());
 
     _level.render(_renderOffset);

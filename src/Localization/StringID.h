@@ -3,5 +3,5 @@
 using std::string;
 
 namespace StringID {
-    const string windowTitle = "MVM 23";
+    const string windowTitle = "CACTUSVANIA";
 };

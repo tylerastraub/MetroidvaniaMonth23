@@ -15,6 +15,7 @@
 #include "HitboxComponent.h"
 #include "HurtboxComponent.h"
 #include "HitstopComponent.h"
+#include "AnimationComponent.h"
 
 namespace {
     class PlayerScript : public IScript {
@@ -34,6 +35,7 @@ namespace {
             auto& hitbox = ecs.get<HitboxComponent>(owner);
             auto& hurtbox = ecs.get<HurtboxComponent>(owner);
             auto& hitstop = ecs.get<HitstopComponent>(owner);
+            auto& state = ecs.get<StateComponent>(owner);
             auto powerup = ecs.get<PowerupComponent>(owner);
 
             int totalAttackDuration = 0;
@@ -238,6 +240,29 @@ namespace {
                 }
             }
 
+            // ==================== STATE SETTING ====================
+            if(hurtbox.hitstunCount < hurtbox.hitstunTime) {
+                state.state = EntityState::HURT;
+            }
+            else if(physics.offGroundCount >= physics.coyoteTime) {
+                if(attack.attackTimer < totalAttackDuration) state.state = EntityState::ATTACKING_AIR;
+                else if(physics.wallSliding) state.state = EntityState::WALLSLIDING;
+                else if(physics.velocity.y < 0) {
+                    if(physics.wallJumping) state.state = EntityState::WALLJUMPING;
+                    else state.state = EntityState::JUMPING;
+                }
+                else state.state = EntityState::FALLING;
+            }
+            else {
+                if(attack.attackTimer < totalAttackDuration) state.state = EntityState::ATTACKING_GROUND;
+                else if(physics.velocity.x != 0.f && !collision.collidingLeft && !collision.collidingRight) {
+                    if(crouchComp.crouching) state.state = EntityState::CROUCH_WALKING;
+                    else state.state = EntityState::RUNNING;
+                }
+                else if(crouchComp.crouching) state.state = EntityState::CROUCHING;
+                else state.state = EntityState::IDLE;
+            }
+
             // ==================== TIMER AND COMPONENT UPDATES ====================
             if(physics.offWallCount < physics.wallJumpTime ||
                hurtbox.invulnCount < ON_HURT_KNOCKBACK_DURATION ||
@@ -359,11 +384,122 @@ namespace prefab {
 
         ecs.emplace<HitstopComponent>(player, HitstopComponent{});
 
+        ecs.emplace<StateComponent>(player, StateComponent{EntityState::IDLE});
+
+        ecs.emplace<AnimationComponent>(player, AnimationComponent{});
+
+        ecs.emplace<SpritesheetPropertiesComponent>(player, createSpritesheetPropertiesComponent());
+
         return player;
     }
 
     SpritesheetPropertiesComponent Player::createSpritesheetPropertiesComponent() {
         SpritesheetPropertiesComponent propsComp;
+        propsComp.spritesheet = SpritesheetRegistry::getSpritesheet(SpritesheetID::PLAYER);
+
+        SpritesheetProperties idleEast = {
+            0,                         // xTileIndex
+            1,                         // yTileIndex
+            false,                     // isAnimated
+            false,                     // isLooped
+            1,                         // numOfFrames
+            1,                         // msBetweenFrames
+            SDL_FLIP_NONE,             // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::IDLE, Direction::EAST, idleEast);
+
+        SpritesheetProperties idleWest = {
+            0,                         // xTileIndex
+            1,                         // yTileIndex
+            false,                     // isAnimated
+            false,                     // isLooped
+            1,                         // numOfFrames
+            1,                         // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,       // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::IDLE, Direction::WEST, idleWest);
+
+        SpritesheetProperties runningEast = {
+            0,                         // xTileIndex
+            2,                         // yTileIndex
+            true,                      // isAnimated
+            true,                      // isLooped
+            RUNNING_NUM_OF_FRAMES,     // numOfFrames
+            RUNNING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_NONE,             // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::RUNNING, Direction::EAST, runningEast);
+
+        SpritesheetProperties runningWest = {
+            0,                         // xTileIndex
+            2,                         // yTileIndex
+            true,                      // isAnimated
+            true,                      // isLooped
+            RUNNING_NUM_OF_FRAMES,     // numOfFrames
+            RUNNING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,       // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::RUNNING, Direction::WEST, runningWest);
+        
+        SpritesheetProperties jumpingEast = {
+            0,                         // xTileIndex
+            3,                         // yTileIndex
+            false,                     // isAnimated
+            false,                     // isLooped
+            1,                         // numOfFrames
+            1,                         // msBetweenFrames
+            SDL_FLIP_NONE,             // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::JUMPING, Direction::EAST, jumpingEast);
+
+        SpritesheetProperties jumpingWest = {
+            0,                         // xTileIndex
+            3,                         // yTileIndex
+            false,                     // isAnimated
+            false,                     // isLooped
+            1,                         // numOfFrames
+            1,                         // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,       // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::JUMPING, Direction::WEST, jumpingWest);
+        
+        SpritesheetProperties fallingEast = {
+            0,                         // xTileIndex
+            4,                         // yTileIndex
+            true,                      // isAnimated
+            false,                     // isLooped
+            FALLING_NUM_OF_FRAMES,     // numOfFrames
+            FALLING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_NONE,             // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::FALLING, Direction::EAST, fallingEast);
+
+        SpritesheetProperties fallingWest = {
+            0,                         // xTileIndex
+            4,                         // yTileIndex
+            true,                      // isAnimated
+            false,                     // isLooped
+            FALLING_NUM_OF_FRAMES,     // numOfFrames
+            FALLING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,       // flip
+            0.0,                       // angle
+            {-1.f, -1.f}               // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::FALLING, Direction::WEST, fallingWest);
 
         return propsComp;
     }

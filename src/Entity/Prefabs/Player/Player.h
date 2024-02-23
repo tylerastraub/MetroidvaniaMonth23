@@ -17,5 +17,10 @@ namespace prefab {
     private:
         static SpritesheetPropertiesComponent createSpritesheetPropertiesComponent();
 
+        static const int RUNNING_NUM_OF_FRAMES = 8;
+        static const int RUNNING_MS_BETWEEN_FRAMES = 100;
+        static const int FALLING_NUM_OF_FRAMES = 2;
+        static const int FALLING_MS_BETWEEN_FRAMES = 100;
+
     };
 }

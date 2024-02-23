@@ -160,6 +160,7 @@ bool Game::loadResources() {
     // Spritesheets
     if(!SpritesheetRegistry::addSpritesheet(_renderer, SpritesheetID::DIALOGUE_BOX, "res/spritesheet/dialogue_box.png", 320, 32)) return false;
     if(!SpritesheetRegistry::addSpritesheet(_renderer, SpritesheetID::TILESET_DEFAULT, "res/spritesheet/tileset_default.png", 16, 16)) return false;
+    if(!SpritesheetRegistry::addSpritesheet(_renderer, SpritesheetID::PLAYER, "res/spritesheet/player.png", 24, 32)) return false;
 
     // Audio
     _audioPlayer = std::make_shared<Audio>();
