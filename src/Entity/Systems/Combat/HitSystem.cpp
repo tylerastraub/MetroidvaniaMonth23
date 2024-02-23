@@ -6,6 +6,7 @@
 #include "HitstopComponent.h"
 #include "HealthComponent.h"
 #include "PhysicsComponent.h"
+#include "DirectionComponent.h"
 
 void HitSystem::update(entt::registry& ecs, float timescale) {
     auto hitstopView = ecs.view<HitstopComponent>();
@@ -115,6 +116,11 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
                         auto& physics = ecs.get<PhysicsComponent>(defender);
                         physics.velocity = hitboxComp.knockback;
                         if(attackerCenter > defenderCenter) physics.velocity.x *= -1.f;
+                    }
+                    // set defender direction based on where they got hit from
+                    if(ecs.all_of<DirectionComponent>(defender)) {
+                        auto& dir = ecs.get<DirectionComponent>(defender);
+                        dir.direction = (attackerCenter > defenderCenter) ? Direction::EAST : Direction::WEST;
                     }
                     // then trigger scripts
                     if(hitboxComp.onHitScript) hitboxComp.onHitScript->update(ecs, attacker, timescale, audio);

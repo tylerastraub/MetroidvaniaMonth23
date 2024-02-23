@@ -199,12 +199,12 @@ namespace {
                 else if(attack.attackTimer < attack.groundAttackStartup + attack.groundAttackDuration) {
                     hitbox.hitboxes.clear();
                     Hitbox groundAttackHitbox;
-                    groundAttackHitbox.bounds = {0.f, 0.f, 32.f, 40.f};
+                    groundAttackHitbox.bounds = {0.f, 0.f, 32.f, 32.f};
                     if(dir.direction == Direction::EAST) {
-                        groundAttackHitbox.offset = {24.f, -8.f};
+                        groundAttackHitbox.offset = {19.f, 0.f};
                     }
                     else if(dir.direction == Direction::WEST) {
-                        groundAttackHitbox.offset = {-32.f, -8.f};
+                        groundAttackHitbox.offset = {-27.f, 0.f};
                     }
                     hitbox.hitboxes.push_back(groundAttackHitbox);
                     hitbox.selfKnockback = attack.groundAttackForce;
@@ -242,8 +242,9 @@ namespace {
                 if(attack.attackTimer < totalAttackDuration) state.state = EntityState::ATTACKING_AIR;
                 else if(physics.wallSliding) state.state = EntityState::WALLSLIDING;
                 else if(physics.velocity.y < 0) {
-                    if(physics.wallJumping) state.state = EntityState::WALLJUMPING;
-                    else state.state = EntityState::JUMPING;
+                    // if(physics.wallJumping) state.state = EntityState::WALLJUMPING;
+                    // else state.state = EntityState::JUMPING;
+                    state.state = EntityState::JUMPING;
                 }
                 else state.state = EntityState::FALLING;
             }
@@ -338,7 +339,7 @@ namespace prefab {
 
         ecs.emplace<RenderComponent>(player, RenderComponent{{0, 0, 24, 32}});
 
-        ecs.emplace<CollisionComponent>(player, CollisionComponent{{pos.x, pos.y , 16.f, 20.f}, {4, 12}});
+        ecs.emplace<CollisionComponent>(player, CollisionComponent{{pos.x, pos.y , 14.f, 20.f}, {5, 12}});
         
         ecs.emplace<InputComponent>(player, InputComponent{{InputEvent::LEFT, InputEvent::RIGHT, InputEvent::JUMP}});
 
@@ -346,7 +347,7 @@ namespace prefab {
 
         ecs.emplace<PowerupComponent>(player, PowerupComponent{});
 
-        ecs.emplace<CrouchComponent>(player, CrouchComponent{20.f, 16.f});
+        ecs.emplace<CrouchComponent>(player, CrouchComponent{20.f, 16.f, 0.3f});
 
         AttackComponent attack;
         attack.groundAttackStartup = 3;
@@ -494,6 +495,110 @@ namespace prefab {
             {-1.f, -1.f}               // center
         };
         propsComp.addSpritesheetProperties(EntityState::FALLING, Direction::WEST, fallingWest);
+        
+        SpritesheetProperties crouchingEast = {
+            0,                           // xTileIndex
+            5,                           // yTileIndex
+            false,                       // isAnimated
+            false,                       // isLooped
+            1,                           // numOfFrames
+            1,                           // msBetweenFrames
+            SDL_FLIP_NONE,               // flip
+            0.0,                         // angle
+            {-1.f, -1.f}                 // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::CROUCHING, Direction::EAST, crouchingEast);
+
+        SpritesheetProperties crouchingWest = {
+            0,                           // xTileIndex
+            5,                           // yTileIndex
+            false,                       // isAnimated
+            false,                       // isLooped
+            1,                           // numOfFrames
+            1,                           // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,         // flip
+            0.0,                         // angle
+            {-1.f, -1.f}                 // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::CROUCHING, Direction::WEST, crouchingWest);
+        
+        SpritesheetProperties crouchwalkingEast = {
+            0,                               // xTileIndex
+            6,                               // yTileIndex
+            true,                            // isAnimated
+            true,                            // isLooped
+            CROUCHWALKING_NUM_OF_FRAMES,     // numOfFrames
+            CROUCHWALKING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_NONE,                   // flip
+            0.0,                             // angle
+            {-1.f, -1.f}                     // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::CROUCH_WALKING, Direction::EAST, crouchwalkingEast);
+
+        SpritesheetProperties crouchwalkingWest = {
+            0,                               // xTileIndex
+            6,                               // yTileIndex
+            true,                            // isAnimated
+            true,                            // isLooped
+            CROUCHWALKING_NUM_OF_FRAMES,     // numOfFrames
+            CROUCHWALKING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,             // flip
+            0.0,                             // angle
+            {-1.f, -1.f}                     // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::CROUCH_WALKING, Direction::WEST, crouchwalkingWest);
+        
+        SpritesheetProperties wallslidingEast = {
+            0,                             // xTileIndex
+            7,                             // yTileIndex
+            true,                          // isAnimated
+            false,                         // isLooped
+            WALLSLIDING_NUM_OF_FRAMES,     // numOfFrames
+            WALLSLIDING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_NONE,                 // flip
+            0.0,                           // angle
+            {-1.f, -1.f}                   // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::WALLSLIDING, Direction::EAST, wallslidingEast);
+
+        SpritesheetProperties wallslidingWest = {
+            0,                             // xTileIndex
+            7,                             // yTileIndex
+            true,                          // isAnimated
+            false,                         // isLooped
+            WALLSLIDING_NUM_OF_FRAMES,     // numOfFrames
+            WALLSLIDING_MS_BETWEEN_FRAMES, // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,           // flip
+            0.0,                           // angle
+            {-1.f, -1.f}                   // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::WALLSLIDING, Direction::WEST, wallslidingWest);
+        
+        SpritesheetProperties hurtEast = {
+            0,                           // xTileIndex
+            8,                           // yTileIndex
+            false,                       // isAnimated
+            false,                       // isLooped
+            1,                           // numOfFrames
+            1,                           // msBetweenFrames
+            SDL_FLIP_NONE,               // flip
+            0.0,                         // angle
+            {-1.f, -1.f}                 // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::HURT, Direction::EAST, hurtEast);
+
+        SpritesheetProperties hurtWest = {
+            0,                           // xTileIndex
+            8,                           // yTileIndex
+            false,                       // isAnimated
+            false,                       // isLooped
+            1,                           // numOfFrames
+            1,                           // msBetweenFrames
+            SDL_FLIP_HORIZONTAL,         // flip
+            0.0,                         // angle
+            {-1.f, -1.f}                 // center
+        };
+        propsComp.addSpritesheetProperties(EntityState::HURT, Direction::WEST, hurtWest);
 
         return propsComp;
     }

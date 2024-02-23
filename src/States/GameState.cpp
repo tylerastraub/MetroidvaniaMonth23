@@ -18,8 +18,8 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  * TODO:
  * ===== ART =====
  * - Add more player art
- *     - Ground attack, air attack, crouching, crouch walking, wall sliding, wall jumping, hurt
- * - Add player particles for attacks
+ *     - Ground attack, air attack
+ *     - Add player particles for attacks (need particle system added)
  * - Add tileset art
  *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
  * - Add parallax background

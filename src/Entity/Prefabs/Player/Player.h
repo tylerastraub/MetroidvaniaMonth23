@@ -21,6 +21,10 @@ namespace prefab {
         static const int RUNNING_MS_BETWEEN_FRAMES = 100;
         static const int FALLING_NUM_OF_FRAMES = 2;
         static const int FALLING_MS_BETWEEN_FRAMES = 100;
+        static const int CROUCHWALKING_NUM_OF_FRAMES = 2;
+        static const int CROUCHWALKING_MS_BETWEEN_FRAMES = 200;
+        static const int WALLSLIDING_NUM_OF_FRAMES = 2;
+        static const int WALLSLIDING_MS_BETWEEN_FRAMES = 70;
 
     };
 }
