@@ -170,10 +170,7 @@ namespace {
                     collision.collisionRect.h = crouchComp.crouchingHeight;
                     collision.collisionRectOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight;
                     collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
-                    hurtbox.bounds.h = 16.f;
-                    hurtbox.offset.y = 16.f;
-                    render.renderQuad.h = crouchComp.crouchingHeight; // todo: delete
-                    render.renderQuadOffset.y += crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
+                    hurtbox.offset.y = 18.f;
                 }
             }
             else if(crouchComp.canUncrouch && crouchComp.crouching) {
@@ -181,10 +178,7 @@ namespace {
                 collision.collisionRect.h = crouchComp.standingHeight;
                 collision.collisionRectOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight;
                 collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
-                hurtbox.bounds.h = 32.f;
-                hurtbox.offset.y = 0.f;
-                render.renderQuad.h = crouchComp.standingHeight; // todo: delete
-                render.renderQuadOffset.y -= crouchComp.standingHeight - crouchComp.crouchingHeight; // todo: delete
+                hurtbox.offset.y = 13.f;
             }
 
             // ==================== HANDLE ATTACKING ====================
@@ -344,7 +338,7 @@ namespace prefab {
 
         ecs.emplace<RenderComponent>(player, RenderComponent{{0, 0, 24, 32}});
 
-        ecs.emplace<CollisionComponent>(player, CollisionComponent{{pos.x, pos.y , 24.f, 32.f}, {0, 0}});
+        ecs.emplace<CollisionComponent>(player, CollisionComponent{{pos.x, pos.y , 16.f, 20.f}, {4, 12}});
         
         ecs.emplace<InputComponent>(player, InputComponent{{InputEvent::LEFT, InputEvent::RIGHT, InputEvent::JUMP}});
 
@@ -352,7 +346,7 @@ namespace prefab {
 
         ecs.emplace<PowerupComponent>(player, PowerupComponent{});
 
-        ecs.emplace<CrouchComponent>(player, CrouchComponent{32.f, 16.f});
+        ecs.emplace<CrouchComponent>(player, CrouchComponent{20.f, 16.f});
 
         AttackComponent attack;
         attack.groundAttackStartup = 3;
@@ -375,8 +369,8 @@ namespace prefab {
         ecs.emplace<HitboxComponent>(player, hitboxComp);
 
         HurtboxComponent hurtboxComp;
-        hurtboxComp.bounds = {0, 0, 24, 32};
-        hurtboxComp.offset = {0.f, 0.f};
+        hurtboxComp.bounds = {0, 0, 12, 12};
+        hurtboxComp.offset = {6.f, 13.f};
         hurtboxComp.onHurtScript = std::make_shared<PlayerOnHurtScript>();
         hurtboxComp.invulnTime = 2000;
         hurtboxComp.invulnCount = 2000;
