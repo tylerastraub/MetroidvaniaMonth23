@@ -19,20 +19,19 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
 /**
  * TODO:
  * ===== ART =====
+ * - Add tileset art
+ *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
  * - Add more player art
  *     - Ground attack, air attack
  *     - Add player particles for attacks (need particle system added)
- * - Add tileset art
- *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
  * - Add parallax background
  * ===== CODE =====
- * - Add doors with keys/locks
- * - Add more enemies
- * - Add TileType::CLIP that functions same as solid except it does not trigger "colliding" bools in CollisionComponent
- * - Add map (prefably a live one)
+ * - Add more enemies (see README.md)
  * - Add particle system
  * - Add hazard tile
  * - Add powerup pickups
+ * - Add doors with keys/locks
+ * - Add map (prefably a live one)
 */
 
 bool GameState::init() {

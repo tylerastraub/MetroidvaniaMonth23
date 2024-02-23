@@ -30,7 +30,7 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
             // get all tiles to the left
             for(int y = topLeftTile.y; y <= bottomRightTile.y; ++y) {
                 Tile t = level.getTileAt(topLeftTile.x, y);
-                if(t.type == TileType::SOLID) {
+                if(t.type == TileType::SOLID || t.type == TileType::CLIP) {
                     tileCollisions.push_back({topLeftTile.x, y});
                 }
             }
@@ -41,7 +41,7 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
                 transform.position.x = tilePos.x * ts + ts - collision.collisionRectOffset.x;
                 collision.collisionRect.x = transform.position.x + collision.collisionRectOffset.x;
                 physics.velocity.x = 0;
-                collision.collidingLeft = true;
+                collision.collidingLeft = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::SOLID);
             }
             else {
                 collision.collidingLeft = false;
@@ -59,7 +59,7 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
             // get all tiles to the right
             for(int y = topLeftTile.y; y <= bottomRightTile.y; ++y) {
                 Tile t = level.getTileAt(bottomRightTile.x, y);
-                if(t.type == TileType::SOLID) {
+                if(t.type == TileType::SOLID || t.type == TileType::CLIP) {
                     tileCollisions.push_back({bottomRightTile.x, y});
                 }
             }
@@ -70,7 +70,7 @@ void CollisionSystem::updateLevelCollisionsOnXAxis(entt::registry& ecs, Level le
                 transform.position.x = tilePos.x * ts - collision.collisionRect.w - collision.collisionRectOffset.x;
                 collision.collisionRect.x = transform.position.x + collision.collisionRectOffset.x;
                 physics.velocity.x = 0;
-                collision.collidingRight = true;
+                collision.collidingRight = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::SOLID);
             }
             else {
                 collision.collidingRight = false;
@@ -114,7 +114,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
             // get all tiles above us
             for(int x = topLeftTile.x; x <= bottomRightTile.x; ++x) {
                 Tile t = level.getTileAt(x, topLeftTile.y);
-                if(t.type == TileType::SOLID) {
+                if(t.type == TileType::SOLID || t.type == TileType::CLIP) {
                     tileCollisions.push_back({x, topLeftTile.y});
                 }
             }
@@ -125,7 +125,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 transform.position.y = tilePos.y * ts + ts - collision.collisionRectOffset.y;
                 collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
                 physics.velocity.y = 0;
-                collision.collidingUp = true;
+                collision.collidingUp = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::SOLID);
             }
             else {
                 collision.collidingUp = false;
@@ -136,7 +136,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
             // get all tiles below us
             for(int x = topLeftTile.x; x <= bottomRightTile.x; ++x) {
                 Tile t = level.getTileAt(x, bottomRightTile.y);
-                if(t.type == TileType::SOLID) {
+                if(t.type == TileType::SOLID || t.type == TileType::CLIP) {
                     tileCollisions.push_back({x, bottomRightTile.y});
                 }
                 else if(t.type == TileType::PLATFORM) {
@@ -152,7 +152,7 @@ void CollisionSystem::updateLevelCollisionsOnYAxis(entt::registry& ecs, Level le
                 transform.position.y = tilePos.y * ts - collision.collisionRect.h - collision.collisionRectOffset.y;
                 collision.collisionRect.y = transform.position.y + collision.collisionRectOffset.y;
                 physics.velocity.y = 0;
-                collision.collidingDown = true;
+                collision.collidingDown = (level.getTileAt(tilePos.x, tilePos.y).type == TileType::SOLID);
                 physics.touchingGround = true;
                 physics.jumping = false;
                 physics.wallJumping = false;

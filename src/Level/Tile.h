@@ -7,6 +7,7 @@ enum class TileType {
     SOLID,
     PLATFORM,
     HAZARD,
+    CLIP,
 };
 
 struct Tile {

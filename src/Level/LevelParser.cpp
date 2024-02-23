@@ -201,6 +201,9 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                                 else if(object.getClass() == "platform") {
                                     tile.type = TileType::PLATFORM;
                                 }
+                                else if(object.getClass() == "clip") {
+                                    tile.type = TileType::CLIP;
+                                }
                                 level.setTileAt(x, y, tile);
                             }
                         }
