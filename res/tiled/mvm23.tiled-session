@@ -26,10 +26,10 @@
                 3
             ],
             "scale": 3,
-            "selectedLayer": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
-                "y": 159.83333333333331
+                "x": 183.33333333333331,
+                "y": 140.33333333333331
             }
         },
         "test_map.tmx": {
@@ -57,7 +57,7 @@
         "test_level2.tmx"
     ],
     "project": "mvm23.tiled-project",
-    "property.type": "int",
+    "property.type": "bool",
     "recentFiles": [
         "tileset_default.tsx",
         "test_level2.tmx",

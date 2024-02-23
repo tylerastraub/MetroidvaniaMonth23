@@ -7,6 +7,7 @@ enum class TriggerType {
     DIALOGUE,
     PREFAB_SPAWN,
     LEVEL_LOAD,
+    CAMERA_TARGET,
 };
 
 struct TriggerComponent {

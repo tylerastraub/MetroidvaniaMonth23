@@ -2,7 +2,6 @@
 
 #include "rect2.h"
 
-#include <cstdint>
 #include <entt/entity/registry.hpp>
 
 namespace prefab {

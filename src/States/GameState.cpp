@@ -7,8 +7,10 @@
 #include "HitboxComponent.h"
 #include "HurtboxComponent.h"
 #include "TransformComponent.h"
+// Triggers
 #include "TriggerComponent.h"
 #include "LevelLoadTriggerComponent.h"
+#include "CameraTargetTriggerComponent.h"
 
 #include <chrono>
 
@@ -24,7 +26,6 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
  * - Add parallax background
  * ===== CODE =====
- * - Add cameraPosTrigger that locks camera goal onto point if player is in trigger
  * - Add doors with keys/locks
  * - Add more enemies
  * - Add TileType::CLIP that functions same as solid except it does not trigger "colliding" bools in CollisionComponent
@@ -45,6 +46,9 @@ bool GameState::init() {
 }
 
 void GameState::tick(float timescale) {
+    _cameraSystem.setCameraGoal(_player);
+    _cameraSystem.setCameraSpeed(0.2f);
+
     _inputSystem.update(_ecs);
     if(_inputSystem.inputPressed(InputEvent::TOGGLE_DEBUG)) _debug = !_debug;
 
@@ -148,6 +152,7 @@ void GameState::initSystems() {
 
 void GameState::processTriggers(std::vector<entt::entity> triggers, float timescale) {
     std::vector<entt::entity> destroyedTriggers;
+    bool hitCameraTrigger = false;
     for(auto trigger : triggers) {
         auto triggerComp = _ecs.get<TriggerComponent>(trigger);
         switch(triggerComp.type) {
@@ -160,6 +165,14 @@ void GameState::processTriggers(std::vector<entt::entity> triggers, float timesc
                 /// TODO: add properties here corresponding to player progress/state
                 // alternatively, just save progress here then load progress in new GameState
                 setNextState(gs);
+                break;
+            }
+            case TriggerType::CAMERA_TARGET: {
+                hitCameraTrigger = true;
+                strb::vec2f cameraTarget = _ecs.get<CameraTargetTriggerComponent>(trigger).target;
+                _cameraSystem.setCameraGoal(entt::null);
+                _cameraSystem.setGoalCameraOffset(cameraTarget);
+                _cameraSystem.setCameraSpeed(0.075f);
                 break;
             }
             default:
