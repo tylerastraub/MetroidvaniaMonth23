@@ -9,6 +9,7 @@
 #include "CameraTargetTrigger.h"
 #include "Player.h"
 #include "Rockling.h"
+#include "Guardian.h"
 
 #include <algorithm>
 #include <iostream>
@@ -74,6 +75,9 @@ Level LevelParser::parseLevelFromTmx(entt::registry& ecs, std::string filePath, 
                         }
                         else if(object.getName() == "rockling") {
                             prefab::Rockling::create(ecs, objPos);
+                        }
+                        else if(object.getName() == "guardian") {
+                            prefab::Guardian::create(ecs, objPos);
                         }
                         // ============================== TRIGGERS ==============================
                         else if(object.getName() == "trigger") {

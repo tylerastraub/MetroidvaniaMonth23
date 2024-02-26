@@ -24,14 +24,23 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  * - Add more player art
  *     - Ground attack, air attack
  *     - Add player particles for attacks (need particle system added)
+ * - Add Rockling art
+ * - Add Guardian art
+ *     - Thinking robotic spider thing with blade that comes out during attack
  * - Add parallax background
  * ===== CODE =====
- * - Add more enemies (see README.md)
+ * - Add more enemies (not all of these will get done)
+ *     - Basic ground enemy (have a more complicated but predictable attack pattern than "run at player blindly")
+ *     - Basic air enemy (runs at player blindly basic)
+ *     - 2nd air enemy that has more unique attack pattern (maybe diving bird like in Mario?)
+ *     - Mega-Gravity enemy
+ *     - Anti-movement enemy (holds up sign with left or right arrow, when active player can't move that direction)
+ *     - Reflector enemy (reflects damage back when shield is up)
  * - Add particle system
  * - Add hazard tile
  * - Add powerup pickups
  * - Add doors with keys/locks
- * - Add map (prefably a live one)
+ * - Add minimap (prefably a live one)
 */
 
 bool GameState::init() {

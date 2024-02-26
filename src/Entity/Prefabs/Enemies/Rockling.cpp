@@ -85,7 +85,6 @@ namespace {
         ~RocklingOnHitScript() = default;
 
         void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
-            std::cout << "ROCKLING KILL!!!!!" << std::endl;
             auto& rocklingComp = ecs.get<RocklingComponent>(owner);
             rocklingComp.msSinceHitPlayer = 0;
         }
@@ -101,7 +100,7 @@ namespace {
         ~RocklingOnHurtScript() = default;
 
         void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
-            std::cout << "ROCKLING HURTS!!!!!" << std::endl;
+            
         }
 
     private:

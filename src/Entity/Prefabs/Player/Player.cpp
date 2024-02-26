@@ -238,7 +238,7 @@ namespace {
             if(hurtbox.hitstunCount < hurtbox.hitstunTime) {
                 state.state = EntityState::HURT;
             }
-            else if(physics.offGroundCount >= physics.coyoteTime) {
+            else if(!physics.touchingGround) {
                 if(attack.attackTimer < totalAttackDuration) state.state = EntityState::ATTACKING_AIR;
                 else if(physics.wallSliding) state.state = EntityState::WALLSLIDING;
                 else if(physics.velocity.y < 0) {
@@ -289,7 +289,7 @@ namespace {
         ~PlayerOnHitScript() = default;
 
         void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
-            std::cout << "hit something!" << std::endl;
+            
         }
 
     private:
@@ -303,7 +303,7 @@ namespace {
         ~PlayerOnHurtScript() = default;
 
         void update(entt::registry& ecs, entt::entity owner, float timescale, std::shared_ptr<Audio> audio) override {
-            std::cout << "ow me player me hurt!" << std::endl;
+            
         }
 
     private:
