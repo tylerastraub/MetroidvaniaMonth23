@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="33">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="34">
  <properties>
   <property name="cameraBoundsH" type="float" value="480"/>
   <property name="cameraBoundsW" type="float" value="608"/>
@@ -70,7 +70,10 @@
     <property name="entityMustBeGrounded" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="32" name="guardian" x="480" y="144">
+  <object id="32" name="airDiver" x="480" y="112">
+   <point/>
+  </object>
+  <object id="33" name="guardian" x="176" y="416">
    <point/>
   </object>
  </objectgroup>

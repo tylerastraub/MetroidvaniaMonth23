@@ -65,6 +65,7 @@ void PhysicsSystem::updateY(entt::registry& ecs, float timescale) {
             else if(physics.velocity.y < physics.maxVelocity.y * -1.f) physics.velocity.y = physics.maxVelocity.y * -1.f;
             transform.position.y += physics.velocity.y * timescale;
             float friction = (physics.touchingGround) ? physics.frictionCoefficient : physics.airFrictionCoefficient;
+            if(physics.gravity == 0.f && !physics.ignoreFriction) moveToZero(physics.velocity.y, friction);
         }
         if(physics.touchingGround) {
             physics.offGroundCount = 0;

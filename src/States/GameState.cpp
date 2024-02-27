@@ -27,11 +27,12 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  * - Add Rockling art
  * - Add Guardian art
  *     - Thinking robotic spider thing with blade that comes out during attack
+ * - Add AirDiver art
  * - Add parallax background
  * ===== CODE =====
+ * - Tweak AirDiver stats more
+ *     - Maybe just need to make it move up a bit after attacks
  * - Add more enemies (not all of these will get done)
- *     - Basic ground enemy (have a more complicated but predictable attack pattern than "run at player blindly")
- *     - Basic air enemy (runs at player blindly basic)
  *     - 2nd air enemy that has more unique attack pattern (maybe diving bird like in Mario?)
  *     - Mega-Gravity enemy
  *     - Anti-movement enemy (holds up sign with left or right arrow, when active player can't move that direction)

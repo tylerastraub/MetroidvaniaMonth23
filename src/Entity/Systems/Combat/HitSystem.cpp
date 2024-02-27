@@ -7,6 +7,7 @@
 #include "HealthComponent.h"
 #include "PhysicsComponent.h"
 #include "DirectionComponent.h"
+#include "PlayerComponent.h"
 
 void HitSystem::update(entt::registry& ecs, float timescale) {
     auto hitstopView = ecs.view<HitstopComponent>();
@@ -71,6 +72,7 @@ void HitSystem::checkForHitboxCollisions(entt::registry& ecs, float timescale, s
         for(auto defender : hurtboxView) {
             // make sure we have a valid hurtbox
             if(attacker == defender) continue;
+            if(!ecs.all_of<PlayerComponent>(attacker) && !ecs.all_of<PlayerComponent>(defender)) continue;
             auto& hurtboxComp = ecs.get<HurtboxComponent>(defender);
             if(hurtboxComp.invulnCount < hurtboxComp.invulnTime) continue;
             // make sure we aren't double hitting entities

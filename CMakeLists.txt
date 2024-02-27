@@ -75,6 +75,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/Engine/RandomUtilities/RDSObject.cpp
     ${PROJECT_SOURCE_DIR}/src/Engine/RandomUtilities/RDSTable.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Components/Render/SpritesheetPropertiesComponent.cpp
+    ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Enemies/AirDiver.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Enemies/Guardian.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Enemies/Rockling.cpp
     ${PROJECT_SOURCE_DIR}/src/Entity/Prefabs/Player/Player.cpp

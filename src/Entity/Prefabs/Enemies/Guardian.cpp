@@ -123,7 +123,7 @@ namespace {
         int _currentActionDuration = 0;
         const int ACTION_DURATION_MIN = 2000;
         const int ACTION_DURATION_MAX = 5000;
-        const int ATTACK_RANGE = 48;
+        const int ATTACK_RANGE = 56;
 
     };
 
