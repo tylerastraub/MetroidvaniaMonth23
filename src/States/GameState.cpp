@@ -20,7 +20,7 @@ std::mt19937 RandomGen::randEng{(unsigned int) std::chrono::system_clock::now().
  * TODO:
  * ===== ART =====
  * - Add tileset art
- *     - Alternate ground tiles like sand, more pyramids/palm trees, marble tiles
+ *     - More pyramids/palm trees, marble tiles
  * - Add more player art
  *     - Ground attack, air attack
  *     - Add player particles for attacks (need particle system added)
